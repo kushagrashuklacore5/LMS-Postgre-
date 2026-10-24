@@ -1,0 +1,61 @@
+
+/* Storekeeper Portal Scrollability & Core5 Theme Fixes */
+.scrollable-content {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #B99652 #ebdcaa;
+}
+
+.scrollable-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: #fffdf4;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: #ebdcaa;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: #B99652;
+}
+
+/* Table scrollability */
+.table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 24rem;
+  border: 1px solid #ebdcaa;
+  border-radius: 0px;
+}
+
+/* Button hover states */
+.btn-primary {
+  @apply bg-[#B99652] text-white px-4 py-2 rounded-none hover:bg-[#a68444] transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-[#B99652] border border-[#9b7b3e];
+}
+
+.btn-secondary {
+  @apply bg-white text-[#1e1b4b] px-4 py-2 rounded-none hover:bg-[#fffdf4] transition-colors duration-200 border border-[#ebdcaa];
+}
+
+.btn-danger {
+  @apply bg-rose-50 text-rose-700 px-4 py-2 rounded-none hover:bg-rose-100 transition-colors duration-200 border border-rose-200;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-md hover:border-[#B99652];
+}
+
+/* Form inputs */
+.form-input {
+  @apply w-full px-3 py-2 border border-[#ebdcaa] bg-[#fffdf4] rounded-none focus:outline-none focus:border-[#B99652] focus:ring-1 focus:ring-[#B99652] text-xs sm:text-sm text-[#1e1b4b];
+}
+
+/* Loading states */
+.loading-spinner {
+  @apply animate-spin rounded-none h-6 w-6 border-2 border-[#B99652] border-t-transparent;
+}

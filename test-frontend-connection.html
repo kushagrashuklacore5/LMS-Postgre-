@@ -1,0 +1,37 @@
+// Test script to check if frontend can connect to accountant invoices API
+console.log('🔍 Testing Frontend Connection to Accountant Invoices API...');
+
+// Test basic connectivity
+fetch('http://127.0.0.1:5002/api/accountant/vendor-invoices')
+  .then(response => {
+    console.log('✅ API is reachable - Status:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('📡 API Response:', data);
+    if (data.success === false && data.message.includes('authenticated')) {
+      console.log('✅ API authentication working correctly');
+    }
+  })
+  .catch(error => {
+    console.log('❌ Connection Error:', error.message);
+  });
+
+// Test with mock authentication (this will fail but shows the flow)
+fetch('http://127.0.0.1:5002/api/accountant/vendor-invoices', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer mock-token',
+    'Content-Type': 'application/json'
+  }
+})
+  .then(response => {
+    console.log('🔐 Auth Test Status:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('🔐 Auth Test Response:', data);
+  })
+  .catch(error => {
+    console.log('❌ Auth Test Error:', error.message);
+  });

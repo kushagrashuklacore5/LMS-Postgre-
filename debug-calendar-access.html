@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Access Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Calendar Access Debug Tool</h1>
+    
+    <div>
+        <label for="token">JWT Token (from browser localStorage):</label><br>
+        <textarea id="token" rows="3" cols="80" placeholder="Paste your JWT token here..."></textarea>
+    </div>
+    
+    <button onclick="testFeatureAccess()">Test Feature Access API</button>
+    <button onclick="testCalendarAPI()">Test Calendar API</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `debug-info ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            results.appendChild(div);
+        }
+
+        async function testFeatureAccess() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                addResult('Please enter a JWT token', 'error');
+                return;
+            }
+
+            addResult('🔍 Testing /api/subscriptions/check-feature-access...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5002/api/subscriptions/check-feature-access', {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                addResult(`Status: ${response.status}`, response.ok ? 'success' : 'error');
+                addResult(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+                if (data.canAccessCalendar === false) {
+                    addResult(`🚫 Calendar blocked - Current plan: ${data.currentPlan}`, 'error');
+                    addResult(`Message: ${data.message}`, 'error');
+                } else {
+                    addResult(`✅ Calendar allowed - Current plan: ${data.currentPlan}`, 'success');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCalendarAPI() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                addResult('Please enter a JWT token', 'error');
+                return;
+            }
+
+            addResult('📅 Testing /api/calendar (direct API)...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:5002/api/calendar', {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                addResult(`Status: ${response.status}`, response.ok ? 'success' : 'error');
+                addResult(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                addResult(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Instructions
+        addResult('📝 Instructions:', 'info');
+        addResult('1. Open browser DevTools (F12)', 'info');
+        addResult('2. Go to Application → Local Storage', 'info');
+        addResult('3. Find your JWT token (usually named "token" or "authToken")', 'info');
+        addResult('4. Copy and paste it in the textarea above', 'info');
+        addResult('5. Click the test buttons to debug calendar access', 'info');
+    </script>
+</body>
+</html>

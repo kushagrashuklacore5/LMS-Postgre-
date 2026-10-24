@@ -1,0 +1,144 @@
+/* Custom Modern Calendar Styling */
+.fc {
+  font-family: "Inter", system-ui, sans-serif;
+  background: transparent;
+  color: #1e1b4b;
+}
+
+.fc-toolbar {
+  padding: 8px 4px 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fc-toolbar-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #1e1b4b !important;
+  letter-spacing: -0.02em;
+}
+
+/* Sharp Square Buttons */
+.fc-button {
+  background: #ffffff !important;
+  border: 1px solid #ebdcaa !important;
+  color: #1e1b4b !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 0px !important;
+  padding: 7px 16px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s ease !important;
+  text-transform: capitalize !important;
+}
+
+.fc-button-group {
+  border-radius: 0px !important;
+  display: inline-flex !important;
+}
+
+.fc-button-group > .fc-button {
+  border-radius: 0px !important;
+  margin: 0 !important;
+}
+
+.fc-button:hover {
+  background: #fdfaf0 !important;
+  border-color: #B99652 !important;
+  color: #B99652 !important;
+}
+
+.fc-button-active, .fc-button-primary:not(:disabled).fc-button-active {
+  background: #B99652 !important;
+  border-color: #B99652 !important;
+  color: #ffffff !important;
+  border-radius: 0px !important;
+  box-shadow: 0 2px 6px rgba(185, 150, 82, 0.25) !important;
+}
+
+.fc-button-primary:disabled {
+  background: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  color: #9ca3af !important;
+  border-radius: 0px !important;
+}
+
+/* Column Header Cells */
+.fc-col-header-cell {
+  background: #fffdf5 !important;
+  border-color: #f1ebd8 !important;
+  padding: 10px 0 !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: #1e1b4b !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Daygrid cells */
+.fc-daygrid-day {
+  border-color: #f3edd8 !important;
+  transition: background 0.15s ease;
+}
+
+.fc-daygrid-day:hover {
+  background: #fffef8;
+}
+
+.fc-daygrid-day-number {
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 6px 8px !important;
+  text-decoration: none !important;
+}
+
+.fc-day-today {
+  background: #fdf8e6 !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: #B99652 !important;
+  font-weight: 800 !important;
+}
+
+/* Sharp Square Events */
+.fc-event {
+  border-radius: 0px !important;
+  padding: 3px 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06) !important;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.fc-event.class {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  color: #ffffff !important;
+}
+
+.fc-event.assignment {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+}
+
+.fc-event.exam {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: #ffffff !important;
+}
+
+.fc-event.holiday {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  color: #ffffff !important;
+}

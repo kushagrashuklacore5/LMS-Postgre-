@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Core5 Persona Orbit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Core5 tokens (from the live site) */
+:root{
+  color-scheme:light;
+  --navy:#0B1528; --blue:#1D528F; --blue-soft:#E8EEF6; --gold:#B99652; --gold-h:#A68443; --gold-soft:#D4B577;
+  --cream:#FFFDF4; --paper:#FFFFFF; --ink:#0F172A; --slate:#475569; --grid:rgba(200,165,70,.09);
+  --f-display:'Mansory','DM Serif Display',Georgia,serif; --f-body:'Plus Jakarta Sans',system-ui,sans-serif; --f-ui:'Poppins',system-ui,sans-serif;
+  /* where your dev server runs; images load from here */
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--slate);font:15px/1.6 var(--f-body);overflow-x:hidden}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#why-us{padding-block:96px;border-block:1px solid rgba(120,53,15,.05);background-color:var(--cream);
+  background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);background-size:44px 44px}
+.why{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+@media(max-width:960px){.why{grid-template-columns:1fr}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(29,82,143,.05);border:1px solid rgba(29,82,143,.15);color:var(--blue);font:600 12px var(--f-body)}
+.eyebrow::before{content:"";width:8px;height:9px;background:var(--gold);clip-path:url(#hexPointyRounded)}
+h2{font:500 clamp(32px,4.2vw,50px)/1.08 var(--f-display);color:var(--blue);margin:18px 0 0;text-wrap:balance}
+.lede{font-size:16.5px;line-height:1.7;max-width:58ch;margin:20px 0 0}
+.note{min-height:46px;margin:18px 0 6px;font-size:14px;color:var(--blue);border-left:3px solid var(--gold);padding-left:12px;transition:opacity .25s}
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;margin:26px 0 32px}
+.feat{display:grid;grid-template-columns:34px 1fr;gap:12px}
+.feat .ic{width:34px;height:38px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);clip-path:url(#hexPointyRounded)}
+.feat svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
+.feat h4{margin:0 0 3px;color:var(--ink);font:600 14px var(--f-body)}
+.feat span{font-size:12.5px;line-height:1.55;display:block}
+@media(max-width:520px){.feats{grid-template-columns:1fr}}
+.btn{display:inline-flex;gap:8px;align-items:center;background:var(--gold);color:var(--paper);font:600 13px var(--f-ui);text-transform:uppercase;letter-spacing:.5px;padding:14px 24px;text-decoration:none;box-shadow:0 8px 20px rgba(185,150,82,.28);transition:background .2s}
+.btn:hover{background:var(--gold-h)}
+
+/* ===== orbit stage ===== */
+.stage{position:relative;width:100%;max-width:600px;aspect-ratio:360/300;margin:auto;touch-action:pan-y;user-select:none;cursor:grab}
+.stage.dragging{cursor:grabbing}
+.b1{position:absolute;left:-4%;top:18%;width:50%;height:78%;background:rgba(29,82,143,.035);clip-path:url(#hexFlatRounded)}
+.b2{position:absolute;left:60%;top:-4%;width:44%;height:104%;background:rgba(29,82,143,.03);clip-path:url(#hexPointyRounded)}
+.photo-wrap{position:absolute;left:0;top:12%;width:60%;height:76%;filter:drop-shadow(0 20px 35px rgba(29,82,143,.16))}
+.photo-clip{position:absolute;inset:0;clip-path:url(#hexFlatRounded);overflow:hidden;background:var(--navy)}
+.photo{position:absolute;inset:0;opacity:0;will-change:opacity,transform}   /* opacity + scale driven by wheel angle */
+.photo .fb{position:absolute;inset:0}
+.photo img,.photo canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo-clip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(11,21,40,.35))}
+.arcs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.arcs circle{fill:none;stroke:rgba(29,82,143,.16);stroke-width:1;stroke-dasharray:4 6}
+
+.node{--g:0;--f:0;position:absolute;left:0;top:0;z-index:5;border:0;padding:0;background:none;cursor:pointer;
+  filter:drop-shadow(0 10px 22px rgba(15,23,42,calc(.12 - var(--f)*.06)));will-change:transform}
+.node .hx{position:relative;width:100%;height:100%;clip-path:url(#hexPointyRounded);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 13%;-webkit-backdrop-filter:blur(calc(var(--f)*5px));backdrop-filter:blur(calc(var(--f)*5px))}
+/* white layer fades out, translucent navy glass fades in as the node slides over the photo */
+.node .hx::before,.node .hx::after{content:"";position:absolute;inset:0;z-index:-1}
+.node .hx::before{background:var(--paper);opacity:calc(1 - var(--f)*.85)}
+.node .hx::after{background:linear-gradient(150deg,rgba(29,82,143,.62),rgba(11,21,40,.7));opacity:var(--f)}
+.node .hx>*{position:relative}
+.node svg{width:22%;height:auto;fill:none;stroke-width:1.8;stroke:var(--blue);margin-bottom:4px}
+.node b{font:700 clamp(11px,1.4vw,17px) var(--f-body);color:var(--ink)}
+.node small{font-size:clamp(9px,1vw,11px);color:var(--slate)}
+.node.on-photo svg{stroke:var(--gold-soft)}
+.node.on-photo b{color:var(--paper)}
+.node.on-photo small{color:#CBD5E1}
+.node .more{display:grid;justify-items:center;max-height:0;opacity:0;overflow:hidden;transition:opacity .25s,max-height .3s}
+.node.active .more{max-height:120px;opacity:1}
+.node.active small{display:none}
+.node .desc{color:#E2E8F0;font-size:clamp(10px,1.05vw,12px);line-height:1.45;margin:6px 0 10px}
+.node .pill{border:1px solid var(--gold);color:var(--gold-soft);font:600 10px var(--f-ui);letter-spacing:.5px;padding:5px 12px;text-transform:uppercase}
+.hint{position:absolute;right:0;bottom:-28px;font:500 11px var(--f-ui);letter-spacing:.6px;color:#94A3B8}
+
+/* mobile: list mode */
+.stage.list{aspect-ratio:auto;display:flex;flex-direction:column;gap:14px;cursor:auto}
+.stage.list .b1,.stage.list .b2,.stage.list .arcs,.stage.list .hint{display:none}
+.stage.list .photo-wrap{position:relative;width:100%;height:auto;aspect-ratio:1.15;left:0;top:0}
+.stage.list .nodes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stage.list .node{position:relative;transform:none!important;width:auto!important;height:auto!important;aspect-ratio:70/78}
+.stage.list .node svg,.stage.list .node .more{display:none}
+@media(prefers-reduced-motion:reduce){.note,.node .more{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <clipPath id="hexFlatRounded" clipPathUnits="objectBoundingBox"><path d="M0.22,0.06 Q0.25,0 0.31,0 L0.69,0 Q0.75,0 0.78,0.06 L0.97,0.44 Q1,0.5 0.97,0.56 L0.78,0.94 Q0.75,1 0.69,1 L0.31,1 Q0.25,1 0.22,0.94 L0.03,0.56 Q0,0.5 0.03,0.44 Z"/></clipPath>
+  <clipPath id="hexPointyRounded" clipPathUnits="objectBoundingBox"><path d="M0.43,0.035 Q0.5,0 0.57,0.035 L0.93,0.215 Q1,0.25 1,0.32 L1,0.68 Q1,0.75 0.93,0.785 L0.57,0.965 Q0.5,1 0.43,0.965 L0.07,0.785 Q0,0.75 0,0.68 L0,0.32 Q0,0.25 0.07,0.215 Z"/></clipPath>
+</defs></svg>
+
+<section id="why-us">
+  <div class="wrap why">
+    <div>
+      <span class="eyebrow">University Learning Platform</span>
+      <h2>Engineering for<br>Academic Excellence<br>Built for Every Learner.</h2>
+      <p class="lede">We combine course delivery, campus logistics, and financial management into one cohesive interface, eliminating tool fragmentation across your university.</p>
+      <p class="note" id="note" aria-live="polite"></p>
+      <div class="feats">
+        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16"/></svg></span><div><h4>Unified Portal</h4><span>Single secure login for Students, Mentors, Admins, and Faculty.</span></div></div>
+        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span><div><h4>AI Guided Learning</h4><span>Personalized support, smarter recommendations, better outcomes.</span></div></div>
+        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6"/><path d="M5 10v9h14v-9"/></svg></span><div><h4>Campus Logistics</h4><span>Manage housing, transport, IT and campus resources seamlessly.</span></div></div>
+        <div class="feat"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9 13l-2 8 5-3 5 3-2-8"/></svg></span><div><h4>Digital Credentials</h4><span>Verified certificates, transcripts and academic records, all in one place.</span></div></div>
+      </div>
+      <a class="btn" href="#why-us">Explore the platform →</a>
+    </div>
+    <div class="stage" id="stage" tabindex="0" aria-label="Personas. Click, drag or use arrow keys">
+      <div class="b1"></div><div class="b2"></div>
+      <div class="photo-wrap"><div class="photo-clip" id="photos"></div></div>
+      <svg class="arcs" aria-hidden="true"><circle id="arc"/></svg>
+      <div class="nodes" id="nodes"></div>
+      <span class="hint">Click or drag the wheel</span>
+    </div>
+  </div>
+</section>
+
+<script>
+(()=>{
+/* ---- your assets: served by Vite dev server ---- */
+const ORIGIN=location.origin.startsWith('http://localhost')?'':'http://localhost:5173';
+const IMG=ORIGIN+'/src/assets/student_reading.jpg', VID=ORIGIN+'/src/assets/login-bg.mp4';
+const ICON={cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',board:'<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/>',
+ bank:'<path d="M3 10l9-6 9 6"/><path d="M5 10v9h14v-9M9 19v-5h6v5"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'};
+// frame = second in login-bg.mp4 (null = use the photo)
+const PER=[
+ {t:'Students',s:'Learn & Grow',d:'Courses, AI tutor, results and credentials in one portal.',n:'Students get one login for courses, AI help, results and certificates.',i:'cap',frame:null,pos:'50% 62%',fb:'linear-gradient(150deg,#2B5C96,#0B1528)'},
+ {t:'Faculty',s:'Teach & Inspire',d:'Plan classes, grade faster and see who needs help.',n:'Faculty plan, teach and grade with live class insights.',i:'board',frame:9.5,fb:'linear-gradient(150deg,#B99652,#1D528F)'},
+ {t:'University',s:'Manage & Scale',d:'Admissions, logistics and finance across every campus.',n:'Universities run admissions, logistics and finance from one place.',i:'bank',frame:0.5,fb:'linear-gradient(150deg,#13223D,#B99652)'},
+ {t:'Admins',s:'Control & Secure',d:'Roles, SSO, audits and reports with full control.',n:'Admins control roles, SSO and audits with full visibility.',i:'shield',frame:7,fb:'linear-gradient(150deg,#1D528F,#0B1528)'}];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage=document.getElementById('stage'),photos=document.getElementById('photos'),wrap=document.getElementById('nodes'),note=document.getElementById('note');
+
+/* photos: student photo as <img>, the rest as video frames drawn onto <canvas> */
+const photoEls=PER.map(p=>{const d=document.createElement('div');d.className='photo';d.innerHTML=`<div class="fb" style="background:${p.fb}"></div>`;
+  if(p.frame===null){const im=new Image();im.src=IMG;im.alt='';im.style.objectPosition=p.pos;im.onerror=()=>im.remove();d.appendChild(im)}
+  photos.appendChild(d);return d});
+(async()=>{const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=VID;
+  try{await new Promise((ok,no)=>{v.onloadeddata=ok;v.onerror=no});
+    for(const [i,p] of PER.entries()){if(p.frame===null)continue;v.currentTime=p.frame;await new Promise(r=>v.onseeked=r);
+      const c=document.createElement('canvas'),h=480,w=Math.round(h*v.videoWidth/v.videoHeight);c.width=w;c.height=h;c.getContext('2d').drawImage(v,0,0,w,h);photoEls[i].appendChild(c);}
+  }catch(e){/* dev server not running: gradients stay */}})();
+
+const nodes=PER.map((p,i)=>{const b=document.createElement('button');b.type='button';b.className='node';b.setAttribute('aria-label',p.t);
+  b.innerHTML=`<div class="hx"><svg viewBox="0 0 24 24">${ICON[p.i]}</svg><b>${p.t}</b><small>${p.s}</small><span class="more"><span class="desc">${p.d}</span><span class="pill">Explore</span></span></div>`;
+  b.addEventListener('click',e=>{if(moved)return;activate(i)});wrap.appendChild(b);return b});
+
+/* ---- geometry ---- */
+const N=PER.length,STEP=360/N,BASE=180;   // slot angles: 180 = left = over the photo
+let R=0,cur=0,W=0,list=false,raf=null;
+const wrapDeg=a=>((a%360)+540)%360-180;                       // -> (-180,180]
+const distToPhoto=i=>Math.abs(wrapDeg(BASE+i*STEP+R-180));     // 0 = sitting on the photo
+function render(){
+  W=stage.clientWidth;list=W<520;stage.classList.toggle('list',list);
+  let best=0;
+  PER.forEach((p,i)=>{const d=list?(i===cur?0:180):distToPhoto(i);
+    const g=Math.max(0,1-d/STEP);                   // 0..1 weight: how close to the photo slot
+    const f=Math.max(0,1-d/55);                     // 0..1 overlap: drives translucency
+    // big hexagon image = function of wheel angle (crossfade + settle)
+    photoEls[i].style.opacity=g; photoEls[i].style.transform=`scale(${1.08-.08*g})`;
+    const n=nodes[i];n.style.setProperty('--f',f.toFixed(3));n.classList.toggle('on-photo',f>.45);
+    if(d<distToPhoto(best))best=i;
+    if(list)return;
+    const H=W*300/360,cx=.59*W,cy=.5*H,r=.29*W,a=(BASE+i*STEP+R)*Math.PI/180;
+    const w=(.19+.15*g)*W,h=w*78/70;                // grows smoothly as it nears the photo
+    n.style.width=w+'px';n.style.height=h+'px';
+    n.style.transform=`translate(${cx+r*Math.cos(a)-w/2}px,${cy+r*Math.sin(a)-h/2}px)`;
+  });
+  if(!list){const c=document.getElementById('arc'),H=W*300/360;c.setAttribute('cx',.59*W);c.setAttribute('cy',.5*H);c.setAttribute('r',.29*W);}
+  return best;
+}
+function setActive(k){if(k===cur&&nodes[k].classList.contains('active'))return;cur=k;
+  nodes.forEach((n,i)=>{n.classList.toggle('active',i===k);n.setAttribute('aria-current',i===k)});
+  note.style.opacity=0;setTimeout(()=>{note.textContent=PER[k].n;note.style.opacity=1},150);}
+const sine=t=>-(Math.cos(Math.PI*t)-1)/2;
+function rotateTo(target,dur){cancelAnimationFrame(raf);const from=R,d=wrapDeg(target-from);
+  if(reduce||list||!dur){R=from+d;render();return}
+  const t0=performance.now();const tick=n=>{const t=Math.min((n-t0)/dur,1);R=from+d*sine(t);render();raf=t<1?requestAnimationFrame(tick):null};raf=requestAnimationFrame(tick);}
+function activate(k){setActive(k);rotateTo(-k*STEP,600)}     // Redington: instant state, 0.6s sine in-out rotation
+
+/* ---- drag to rotate: image follows the wheel continuously ---- */
+let drag=null,moved=false;
+stage.addEventListener('pointerdown',e=>{if(list||reduce)return;const r=stage.getBoundingClientRect();
+  drag={cx:r.left+.59*W,cy:r.top+.5*W*300/360,a:Math.atan2(e.clientY-(r.top+.5*W*300/360),e.clientX-(r.left+.59*W)),x:e.clientX,y:e.clientY};moved=false;cancelAnimationFrame(raf)});
+addEventListener('pointermove',e=>{if(!drag)return;if(!moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return;
+  if(!moved){moved=true;stage.classList.add('dragging');stage.setPointerCapture?.(e.pointerId)}
+  const a=Math.atan2(e.clientY-drag.cy,e.clientX-drag.cx);R+=wrapDeg((a-drag.a)*180/Math.PI);drag.a=a;setActive(render())});
+addEventListener('pointerup',()=>{if(!drag)return;drag=null;stage.classList.remove('dragging');
+  if(moved){const k=render();setActive(k);rotateTo(-k*STEP,420);setTimeout(()=>moved=false,0)}});
+
+/* keyboard + autoplay (pauses on hover, drag, or off-screen) */
+stage.addEventListener('keydown',e=>{if(/Right|Down/.test(e.key)){e.preventDefault();activate((cur+1)%N)}if(/Left|Up/.test(e.key)){e.preventDefault();activate((cur+N-1)%N)}});
+let hov=false;stage.addEventListener('pointerenter',()=>hov=true);stage.addEventListener('pointerleave',()=>hov=false);
+if(!reduce)setInterval(()=>{const r=stage.getBoundingClientRect();if(!hov&&!drag&&!document.hidden&&r.top<innerHeight&&r.bottom>0)activate((cur+1)%N)},5000);
+
+setActive(0);new ResizeObserver(render).observe(stage);render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+/* GuideBot popover skin — layered on top of Driver.js's own base styling
+ * (driver.js/dist/driver.css, imported immediately before this file in
+ * driverAdapter.js so these rules win the cascade at equal specificity).
+ * Driver.js is used nowhere else in this app, so scoping to its own
+ * `.driver-popover-*` classes here touches nothing outside GuideBot.
+ * Colors are drawn from the app's own Tailwind `primary` token
+ * (#2563EB, tailwind.config.js) so the tour reads as a native part of
+ * the product rather than a bolted-on widget. */
+
+:root {
+  --guidebot-primary: #2563eb;
+  --guidebot-primary-hover: #1d4ed8;
+  --guidebot-ink: #0f172a;
+  --guidebot-muted: #64748b;
+  --guidebot-border: #e2e8f0;
+}
+
+.driver-popover {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  border-radius: 14px;
+  padding: 20px 22px 18px;
+  max-width: 360px;
+  border: 1px solid var(--guidebot-border);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.18), 0 4px 10px -4px rgba(15, 23, 42, 0.1);
+}
+
+.driver-popover-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--guidebot-ink);
+  letter-spacing: -0.01em;
+  padding-right: 20px;
+}
+
+.driver-popover-description {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--guidebot-muted);
+}
+
+.driver-popover-progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--guidebot-muted);
+}
+
+.driver-popover-footer {
+  margin-top: 18px;
+}
+
+.driver-popover-footer-btn {
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--guidebot-border);
+  background: #fff;
+  color: #334155;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.driver-popover-footer-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.driver-popover-next-btn {
+  background: var(--guidebot-primary);
+  border-color: var(--guidebot-primary);
+  color: #fff;
+}
+
+.driver-popover-next-btn:hover {
+  background: var(--guidebot-primary-hover);
+  border-color: var(--guidebot-primary-hover);
+}
+
+.driver-popover-close-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+  color: #94a3b8;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* GuideBot's own Skip control — injected by GuideBotRuntime alongside
+ * Driver.js's Previous/Next/Close. Deliberately not a bordered button
+ * like driver-popover-footer-btn: a plain muted text link (own class,
+ * not a driver.js class) so it reads as the tertiary "leave the tour"
+ * action rather than competing with the primary Next button. */
+.guidebot-popover-skip-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  padding: 7px 8px;
+  margin: 0 auto 0 14px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.guidebot-popover-skip-btn:hover {
+  color: #475569;
+  background: #f1f5f9;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.guidebot-popover-skip-btn:focus-visible {
+  outline: 2px solid var(--guidebot-primary);
+  outline-offset: 2px;
+}

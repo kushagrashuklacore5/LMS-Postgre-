@@ -1,0 +1,87 @@
+# Runs on every push and pull request: nothing merges without the security, integrity and
+# module suites passing and the client building. The tests create their own temporary
+# PostgreSQL databases (lms_test_*) on a throw-away service container and use no real
+# credentials (see server/tests/helpers/pgTestDatabase.js).
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    # The password below exists only inside this CI job's disposable container.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-only-throwaway
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      LMS_SKIP_DOTENV: 'true'
+      LMS_TEST_DATABASE_ADMIN_URL: postgres://postgres:ci-only-throwaway@localhost:5432/postgres
+      PG_BIN: /usr/lib/postgresql/17/bin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # pg_dump / pg_restore 17 for the backup test (the runner's own client may be older)
+      - name: PostgreSQL 17 client tools
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
+      # The server loads both AI modules, so their dependencies are needed too
+      - run: npm ci
+        working-directory: server
+      - run: npm ci
+        working-directory: ai-modules/ai-assessment-agent
+      - run: npm ci
+        working-directory: ai-modules/student-onboarding-agent
+      - run: npm test
+        working-directory: server
+      - run: npm audit --omit=dev --audit-level=high
+        working-directory: server
+        continue-on-error: true # reported, not yet blocking: review the first results, then make it blocking
+
+  ai-modules:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-only-throwaway
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      LMS_SKIP_DOTENV: 'true'
+      LMS_TEST_DATABASE_ADMIN_URL: postgres://postgres:ci-only-throwaway@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+        working-directory: server
+      - run: npm ci && npm test
+        working-directory: ai-modules/ai-assessment-agent
+      - run: npm ci && npm test
+        working-directory: ai-modules/student-onboarding-agent
+
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+        working-directory: client
+      - run: npm run build
+        working-directory: client

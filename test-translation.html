@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DeepL API Test</title>
+</head>
+<body>
+    <h1>DeepL API Test</h1>
+    <button onclick="testTranslation()">Test Translation</button>
+    <div id="result"></div>
+
+    <script>
+        async function testTranslation() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                console.log('🔥 Testing DeepL API...');
+                
+                const response = await fetch('http://localhost:5002/api/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: 'Hello World',
+                        sourceLanguage: 'en',
+                        targetLanguage: 'es'
+                    }),
+                });
+
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('❌ API Error:', errorData);
+                    resultDiv.innerHTML = `Error: ${errorData.error || 'Unknown error'}`;
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('✅ API Success:', data);
+                resultDiv.innerHTML = `Original: Hello World<br>Translated: ${data.translatedText}`;
+                
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+                resultDiv.innerHTML = `Network Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

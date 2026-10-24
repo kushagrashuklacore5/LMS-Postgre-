@@ -1,0 +1,284 @@
+{
+  "schema": "student-onboarding-agent/canonical-student",
+  "version": "0.2.0",
+  "status": "active",
+  "description": "Canonical, business-level student object for bulk onboarding. Excel columns are mapped (later, by the LLM step) onto importFields; the deterministic validator (backend/src/validation/) checks them; the future LMS adapter translates them to LMS storage. Derived from a read-only inspection of the existing LMS (see config/README.md). Not a copy of any LMS table.",
+
+  "conventions": {
+    "origin": "'import' = may come from Excel/LLM mapping. 'system' = never accepted from Excel/LLM; set by the authenticated admin context or the LMS adapter.",
+    "systemControlledFields": "A canonical row containing any of these names or their aliases is rejected (FORBIDDEN_SYSTEM_FIELD). Names are compared ignoring case, '_' and '-', so university_id and universityId both match.",
+    "types": "string = text (must be a JSON string). date = calendar date, must be a JSON string; canonical form YYYY-MM-DD.",
+    "normalization": "trim = remove surrounding whitespace. emptyToNull = an empty value becomes null (optional fields only).",
+    "required": "The value must be present and non-empty after normalization.",
+    "validation": "Machine-readable rules read by the validator. Allowed keys: format ('email' | 'phone' | 'date'), allowedValues (array of strings), allowedValuesCaseInsensitive (boolean), errorCode (code used when allowedValues fails). Unknown keys are rejected when the schema is loaded.",
+    "formats": {
+      "email": "Basic syntax: local@domain.tld with no whitespace, exactly one '@', and non-empty dot-separated domain labels (decision OD-2).",
+      "phone": "International / E.164-compatible (decision OD-3): after removing spaces, hyphens, dots and parentheses, an optional leading '+' followed by 7 to 15 digits; when '+' is present the first digit must not be 0. Not country-specific. The value is kept as written (trimmed), never reformatted.",
+      "date": "Decision OD-4: accepts YYYY-MM-DD, or the ISO timestamp at midnight UTC that the Excel import produces for real Excel date cells (YYYY-MM-DDT00:00:00.000Z). Normalized to YYYY-MM-DD. Numeric day/month/year text such as 03/04/2010 is reported as AMBIGUOUS_DATE and never guessed, with one exception: when a date column of the uploaded sheet proves a day-first order (a 4-digit-year value whose first part is above 12, and none whose second part is above 12), that column is read as DD-MM-YYYY. Anything else is INVALID_DATE."
+    },
+    "mappingHints": "Non-binding example column names for the future LLM mapping prompt. The deterministic validator never uses them to reinterpret columns.",
+    "lms.persisted": "Whether the current LMS create-student flow actually stores the value. false = accepted by the LMS API/UI but discarded today.",
+    "evidence": "Paths are relative to the LMS root (the folder containing client/ and server/)."
+  },
+
+  "importFields": {
+    "fullName": {
+      "type": "string",
+      "required": true,
+      "origin": "import",
+      "description": "The student's full name as written. Kept as one value; never split into first/last name.",
+      "normalization": ["trim"],
+      "validation": {},
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Student Name", "Name", "Full Name"],
+      "lms": { "apiField": "fullName", "storage": "users.name (TEXT NOT NULL)", "persisted": true },
+      "evidence": [
+        "server/controllers/adminController.js createStudent: rejects the request unless fullName and email are present",
+        "client/src/pages/admin/AddStudent.jsx: blocks save unless fullName and email are filled",
+        "server/config/sqlite-db.js: users.name TEXT NOT NULL"
+      ]
+    },
+    "email": {
+      "type": "string",
+      "required": true,
+      "origin": "import",
+      "description": "The student's email address. Used as the LMS login identity and as the target for future onboarding emails. Kept as written (trimmed); compared ignoring case.",
+      "normalization": ["trim"],
+      "validation": { "format": "email" },
+      "unique": true,
+      "classroomAssignment": false,
+      "mappingHints": ["Email", "Email Address", "Mail ID"],
+      "lms": { "apiField": "email", "storage": "users.email (TEXT UNIQUE NOT NULL, LMS-wide)", "persisted": true },
+      "evidence": [
+        "server/controllers/adminController.js createStudent: required; rejects if a user with the same email exists (\"Student already exists\")",
+        "server/config/sqlite-db.js and server/database/postgres-schema.sql: users.email UNIQUE NOT NULL",
+        "server/models/User.js (Mongoose): email required, unique, lowercase"
+      ]
+    },
+    "className": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Human-readable class/grade as written in the file (e.g. \"10\"). Input for classroom assignment only; never an LMS classroom ID.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": {},
+      "unique": false,
+      "classroomAssignment": true,
+      "mappingHints": ["Class", "Grade", "Std", "Standard"],
+      "lms": {
+        "apiField": "className",
+        "storage": "students.grade (TEXT); classrooms are matched on classrooms.grade",
+        "persisted": true
+      },
+      "evidence": [
+        "server/controllers/adminController.js createStudent: stores className into students.grade",
+        "server/config/sqlite-db.js: classrooms.grade TEXT NOT NULL",
+        "server/controllers/classroomController.js createClassroom: grade is required"
+      ]
+    },
+    "section": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Human-readable section as written in the file (e.g. \"A\"). Input for classroom assignment only.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": {},
+      "unique": false,
+      "classroomAssignment": true,
+      "mappingHints": ["Section", "Div", "Division"],
+      "lms": {
+        "apiField": "section",
+        "storage": "CONFLICT: createStudent writes section into students.rollNumber; classrooms.section holds the classroom's section",
+        "persisted": true
+      },
+      "evidence": [
+        "server/controllers/adminController.js createStudent: INSERT ... rollNumber = section",
+        "server/config/sqlite-db.js: classrooms.section TEXT",
+        "server/controllers/classroomController.js createClassroom: section is required"
+      ]
+    },
+    "parentName": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Parent/guardian name as written.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": {},
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Parent Name", "Father's Name", "Guardian"],
+      "lms": { "apiField": "parentName", "storage": null, "persisted": false },
+      "evidence": ["Accepted by createStudent and the AddStudent form, but not written to any table"]
+    },
+    "phone": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Contact phone number, kept as text so leading zeros and '+' survive.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": { "format": "phone" },
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Phone", "Mobile", "Contact No"],
+      "lms": { "apiField": "phone", "storage": null, "persisted": false },
+      "evidence": ["Accepted by createStudent and the AddStudent form (plain text input, no format rule), but not written to any table"]
+    },
+    "dob": {
+      "type": "date",
+      "required": false,
+      "origin": "import",
+      "description": "Date of birth.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": { "format": "date" },
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["DOB", "Date of Birth", "Birth Date"],
+      "lms": { "apiField": "dob", "storage": null, "persisted": false },
+      "evidence": ["AddStudent form uses <input type=\"date\"> (sends YYYY-MM-DD); accepted by createStudent but not written to any table"]
+    },
+    "admissionDate": {
+      "type": "date",
+      "required": false,
+      "origin": "import",
+      "description": "Date of admission.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": { "format": "date" },
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Admission Date", "Date of Admission", "DOA"],
+      "lms": { "apiField": "admissionDate", "storage": null, "persisted": false },
+      "evidence": ["AddStudent form uses <input type=\"date\">; accepted by createStudent but not written to any table"]
+    },
+    "bloodGroup": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Blood group. One of the 8 standard values (decision OD-5); matched ignoring case and stored in the standard spelling.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": {
+        "allowedValues": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+        "allowedValuesCaseInsensitive": true,
+        "errorCode": "INVALID_BLOOD_GROUP"
+      },
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Blood Group", "Blood Type"],
+      "lms": { "apiField": "bloodGroup", "storage": null, "persisted": false },
+      "evidence": ["Accepted by createStudent and the AddStudent form (free text), but not written to any table"]
+    },
+    "address": {
+      "type": "string",
+      "required": false,
+      "origin": "import",
+      "description": "Postal address as written.",
+      "normalization": ["trim", "emptyToNull"],
+      "validation": {},
+      "unique": false,
+      "classroomAssignment": false,
+      "mappingHints": ["Address", "Residential Address"],
+      "lms": { "apiField": "address", "storage": null, "persisted": false },
+      "evidence": ["Accepted by createStudent and the AddStudent form, but not written to any table"]
+    }
+  },
+
+  "systemControlledFields": {
+    "id": { "reason": "Database primary key (users.id), assigned by the database." },
+    "password": { "reason": "Generated by the LMS during creation (random, then bcrypt-hashed). Never taken from Excel/LLM." },
+    "role": { "value": "student", "reason": "Fixed by the create-student flow. Never taken from Excel/LLM." },
+    "isApproved": { "value": true, "reason": "Admin-created students are stored with isApproved = 1." },
+    "universityId": { "reason": "Tenant identity (users.university_id); comes from the authenticated admin's token." },
+    "studentId": { "reason": "Generated by the LMS (\"2026\" + 6 random digits, students.studentId UNIQUE). Roll/admission numbers stay excluded (decision OD-6)." },
+    "classroomId": { "reason": "Internal classroom ID (student_classroom_assignment.classroomId, users.classroom_id). Resolved by the LMS adapter from className + section; never invented by the LLM." },
+    "userId": { "reason": "Internal link students.userId -> users.id." },
+    "fees": {
+      "aliases": ["totalFees", "feesPaid", "pendingFees"],
+      "reason": "Financial fields initialised to 0 by the LMS (students.totalFees, feesPaid, pendingFees); out of scope for onboarding."
+    },
+    "subscriptionPlan": { "reason": "Billing/tenant setting on users; not student data." },
+    "status": { "reason": "Account status (users.status in PostgreSQL schema); lifecycle is owned by the LMS." },
+    "createdAt": { "reason": "Timestamps are set by the database." },
+    "updatedAt": { "reason": "Timestamps are set by the database." }
+  },
+
+  "classroomAssignment": {
+    "inputFields": ["className", "section"],
+    "matching": "caseInsensitiveExact",
+    "onNoMatch": "report",
+    "onMultipleMatches": "report",
+    "appliesIn": "LMS adapter (not the deterministic validator: it needs the target LMS's classrooms)",
+    "description": "The import carries only human-readable className and section. The LMS adapter will resolve them to a classroom in the admin's university by trimmed, case-insensitive exact match on classrooms.grade / classrooms.section (decision OD-7). Zero or several matches are reported, never guessed.",
+    "evidence": [
+      "server/controllers/classroomController.js assignStudentToClassroom: by classroomId + studentId, classroom must belong to the admin's university",
+      "server/routes/universalRoutes.js POST /classrooms/assign-student: also sets users.classroom_id",
+      "server/controllers/classroomController.js createClassroom: name is generated as \"Grade <grade> - <section>\"; no uniqueness check on grade + section"
+    ]
+  },
+
+  "duplicateDetection": {
+    "uniqueFields": ["email"],
+    "comparison": "caseInsensitive",
+    "withinImportOnly": true,
+    "behaviour": "Every row sharing a unique value is flagged; no row is dropped, merged or treated as an update.",
+    "existingLmsRecords": "Not checked by the validator. Checking against existing LMS users is the LMS adapter's job (the current LMS rejects an existing email)."
+  },
+
+  "decisions": [
+    {
+      "id": "OD-1",
+      "topic": "Email case sensitivity",
+      "decision": "Duplicate detection compares emails ignoring case. The original value is kept.",
+      "evidence": "SQLite duplicate check uses exact 'email = ?' (case-sensitive); the Mongoose User model lowercases emails.",
+      "appliesIn": "validator"
+    },
+    {
+      "id": "OD-2",
+      "topic": "Email format rule",
+      "decision": "Validate basic email syntax, even though the current LMS does not.",
+      "evidence": "No format validation in createStudent or AddStudent.jsx (plain text input).",
+      "appliesIn": "validator"
+    },
+    {
+      "id": "OD-3",
+      "topic": "Phone format",
+      "decision": "International / E.164-compatible values; not country-specific. See conventions.formats.phone.",
+      "evidence": "Phone is free text in the form and is not stored by the LMS.",
+      "appliesIn": "validator"
+    },
+    {
+      "id": "OD-4",
+      "topic": "Date rules",
+      "decision": "Accept real Excel date values and YYYY-MM-DD. Ambiguous numeric text dates (DD/MM vs MM/DD) are flagged, never guessed. No future-date or age rules.",
+      "evidence": "The LMS form only produces YYYY-MM-DD; the fields are not stored.",
+      "appliesIn": "validator"
+    },
+    {
+      "id": "OD-5",
+      "topic": "Blood group values",
+      "decision": "One of A+, A-, B+, B-, AB+, AB-, O+, O-.",
+      "evidence": "Free text in the form; not stored.",
+      "appliesIn": "validator"
+    },
+    {
+      "id": "OD-6",
+      "topic": "Roll number / admission number",
+      "decision": "Excluded from the canonical schema.",
+      "evidence": "students.rollNumber exists but createStudent fills it with section; students.studentId is auto-generated. No form field exists for either.",
+      "appliesIn": "schema"
+    },
+    {
+      "id": "OD-7",
+      "topic": "Classroom resolution",
+      "decision": "Case-insensitive exact match of className + section; zero or multiple matches are reported, never guessed.",
+      "evidence": "classrooms has grade + section per university with no uniqueness constraint; className values in students.grade are free text.",
+      "appliesIn": "LMS adapter"
+    },
+    {
+      "id": "OD-8",
+      "topic": "Fields the LMS does not store",
+      "decision": "Keep parentName, phone, dob, admissionDate, bloodGroup and address as optional canonical fields.",
+      "evidence": "server/controllers/adminController.js createStudent destructures them but never writes them.",
+      "appliesIn": "schema"
+    }
+  ]
+}

@@ -1,0 +1,2881 @@
+{
+  "portalRoutes": {
+    "public": [
+      {
+        "path": "/",
+        "components": [
+          "RootRedirect"
+        ],
+        "raw": "<RootRedirect />"
+      },
+      {
+        "path": "/home",
+        "components": [
+          "Home"
+        ],
+        "raw": "<Home />"
+      },
+      {
+        "path": "/login",
+        "components": [
+          "Home"
+        ],
+        "raw": "<Home />"
+      },
+      {
+        "path": "/register",
+        "components": [
+          "Register"
+        ],
+        "raw": "<Register />"
+      }
+    ],
+    "student": [
+      {
+        "path": "/student/assessment-agent/assignments",
+        "components": [
+          "StudentAssignments"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"><StudentAssignments /></ProtectedRoute>"
+      },
+      {
+        "path": "/student/assessment-agent/assignments/:id",
+        "components": [
+          "StudentAssignment"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"><StudentAssignment /></ProtectedRoute>"
+      },
+      {
+        "path": "/student/assessment-agent/tests",
+        "components": [
+          "StudentTests"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"><StudentTests /></ProtectedRoute>"
+      },
+      {
+        "path": "/student/assessment-agent/attempts/:attemptId",
+        "components": [
+          "StudentAttempt"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"><StudentAttempt /></ProtectedRoute>"
+      },
+      {
+        "path": "/student/dashboard",
+        "components": [
+          "StudentDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <StudentDashboard /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/subscription",
+        "components": [
+          "Subscription"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <Subscription /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/timetable",
+        "components": [
+          "Timetable"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <Timetable /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/pay-fees",
+        "components": [
+          "PayFees"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <PayFees /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/results",
+        "components": [
+          "StudentResults"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <StudentResults /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/attendance",
+        "components": [
+          "StudentAttendance"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <StudentAttendance /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/courses",
+        "components": [
+          "Courses"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <Courses /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/course/:courseId",
+        "components": [
+          "CourseViewer"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <CourseViewer /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/assessment/:assessmentId",
+        "components": [
+          "AttemptAssessment"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <AttemptAssessment /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/certificates",
+        "components": [
+          "Certificates"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <Certificates /> </ProtectedRoute>"
+      },
+      {
+        "path": "/student/calendar",
+        "components": [
+          "CalendarPage"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"student\"> <CalendarPage role=\"student\" /> </ProtectedRoute>"
+      }
+    ],
+    "mentor": [
+      {
+        "path": "/mentor/add-result",
+        "components": [
+          "AddResult"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <AddResult /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/dashboard",
+        "components": [
+          "MentorDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <MentorDashboard /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/classrooms",
+        "components": [
+          "MentorClassrooms"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <MentorClassrooms /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/classroom/:classroomId",
+        "components": [
+          "ClassroomDetail"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <ClassroomDetail /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/results",
+        "components": [
+          "ClassResults"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <ClassResults /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/requirements",
+        "components": [
+          "Requirements"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <Requirements /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/classroom",
+        "components": [
+          "MyClassroom"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <MyClassroom /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/attendance",
+        "components": [
+          "AttendanceManagement"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <AttendanceManagement /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/course/:courseId",
+        "components": [
+          "CourseTeacherPortal"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <CourseTeacherPortal /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/create-course",
+        "components": [
+          "CreateCourse"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <CreateCourse /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/add-chapter",
+        "components": [
+          "AddChapter"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <AddChapter /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/assign-students",
+        "components": [
+          "AssignStudent"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <AssignStudent /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/progress",
+        "components": [
+          "Progress"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <Progress /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/fee-monitoring",
+        "components": [
+          "ClassFeeStatus"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <ClassFeeStatus /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/create-assessment",
+        "components": [
+          "CreateAssessment"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <CreateAssessment /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/course/:courseId",
+        "components": [
+          "MentorCourseDetails"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <MentorCourseDetails /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/course/:courseId/materials",
+        "components": [
+          "CourseMaterialsUpload"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <CourseMaterialsUpload /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/assessment/:assessmentId",
+        "components": [
+          "DesignAssessment"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <DesignAssessment /> </ProtectedRoute>"
+      },
+      {
+        "path": "/mentor/calendar",
+        "components": [
+          "CalendarPage"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"> <CalendarPage role=\"mentor\" /> </ProtectedRoute>"
+      }
+    ],
+    "teacher": [
+      {
+        "path": "/teacher/assessments",
+        "components": [
+          "TeacherAssessments"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"><TeacherAssessments /></ProtectedRoute>"
+      },
+      {
+        "path": "/teacher/assessments/assignments",
+        "components": [
+          "TeacherAssignments"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"><TeacherAssignments /></ProtectedRoute>"
+      },
+      {
+        "path": "/teacher/assessments/students/:studentId",
+        "components": [
+          "StudentPerformance"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"mentor\"><StudentPerformance /></ProtectedRoute>"
+      }
+    ],
+    "admin": [
+      {
+        "path": "/admin/student-import",
+        "components": [
+          "StudentImport"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"><StudentImport /></ProtectedRoute>"
+      },
+      {
+        "path": "/admin/dashboard",
+        "components": [
+          "AdminDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <AdminDashboard /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/create-course",
+        "components": [
+          "CreateCourseAdmin"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <CreateCourseAdmin /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/users",
+        "components": [
+          "UserList"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <UserList /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/mentors",
+        "components": [
+          "MentorApproval"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <MentorApproval /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/analytics",
+        "components": [
+          "Analytics"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <Analytics /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/fee-structure",
+        "components": [
+          "FeeStructure"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <FeeStructure /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/add-student",
+        "components": [
+          "AddStudent"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <AddStudent /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/add-teacher",
+        "components": [
+          "AddTeacher"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <AddTeacher /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/classrooms",
+        "components": [
+          "Classrooms"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <Classrooms /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/classrooms/:classroomId",
+        "components": [
+          "ClassroomDetails"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <ClassroomDetails /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/calendar",
+        "components": [
+          "CalendarPage"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <CalendarPage role=\"admin\" /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/announcements",
+        "components": [
+          "Announcements"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <Announcements /> </ProtectedRoute>"
+      },
+      {
+        "path": "/admin/database-export",
+        "components": [
+          "DatabaseExport"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"admin\"> <DatabaseExport /> </ProtectedRoute>"
+      }
+    ],
+    "superadmin": [
+      {
+        "path": "/superadmin/login",
+        "components": [
+          "SuperAdminLogin"
+        ],
+        "raw": "<SuperAdminLogin />"
+      },
+      {
+        "path": "/superadmin/dashboard",
+        "components": [
+          "SuperAdminDashboard"
+        ],
+        "raw": "<SuperAdminDashboard />"
+      },
+      {
+        "path": "/superadmin/subscription",
+        "components": [
+          "SuperAdminSubscription"
+        ],
+        "raw": "<SuperAdminSubscription />"
+      },
+      {
+        "path": "/internal-admin-portal",
+        "components": [
+          "InternalAdminPortal"
+        ],
+        "raw": "<InternalAdminPortal />"
+      }
+    ],
+    "accountant": [
+      {
+        "path": "/accountant/dashboard",
+        "components": [
+          "AccountantDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <AccountantDashboard /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/vendor-invoices",
+        "components": [
+          "VendorInvoiceManagement"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <VendorInvoiceManagement /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/payment-history",
+        "components": [
+          "PaymentHistory"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <PaymentHistory /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/fee-monitoring",
+        "components": [
+          "ClassFeeStatus"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <ClassFeeStatus /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/fees",
+        "components": [
+          "FeesCollection"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <FeesCollection /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/legacy-reconciliation",
+        "components": [
+          "LegacyReconciliationPage"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <LegacyReconciliationPage /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/expenses",
+        "components": [
+          "Expenses"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <Expenses /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/database-export",
+        "components": [
+          "AccountantDatabaseExport"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <AccountantDatabaseExport /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/reports",
+        "components": [
+          "AccountantDatabaseExport"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <AccountantDatabaseExport /> </ProtectedRoute>"
+      },
+      {
+        "path": "/accountant/*",
+        "components": [
+          "AccountantDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"accountant\"> <AccountantDashboard /> </ProtectedRoute>"
+      }
+    ],
+    "storekeeper": [
+      {
+        "path": "/storekeeper/*",
+        "components": [
+          "StorekeeperDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"storekeeper\"> <StorekeeperDashboard /> </ProtectedRoute>"
+      },
+      {
+        "path": "/storekeeper/*",
+        "components": [
+          "StorekeeperDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"storekeeper\"> <StorekeeperDashboard /> </ProtectedRoute>"
+      }
+    ],
+    "vendor": [
+      {
+        "path": "/vendor/dashboard",
+        "components": [
+          "VendorLayout",
+          "VendorDashboard"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"vendor\"> <VendorLayout> <VendorDashboard /> </VendorLayout> </ProtectedRoute>"
+      },
+      {
+        "path": "/vendor/invoices",
+        "components": [
+          "VendorLayout",
+          "VendorInvoices"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"vendor\"> <VendorLayout> <VendorInvoices /> </VendorLayout> </ProtectedRoute>"
+      },
+      {
+        "path": "/vendor/orders",
+        "components": [
+          "VendorLayout",
+          "VendorOrders"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"vendor\"> <VendorLayout> <VendorOrders /> </VendorLayout> </ProtectedRoute>"
+      },
+      {
+        "path": "/vendor/stock",
+        "components": [
+          "VendorLayout",
+          "VendorStock"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"vendor\"> <VendorLayout> <VendorStock /> </VendorLayout> </ProtectedRoute>"
+      },
+      {
+        "path": "/vendor/payments",
+        "components": [
+          "VendorLayout",
+          "VendorPayments"
+        ],
+        "raw": "<ProtectedRoute requiredRole=\"vendor\"> <VendorLayout> <VendorPayments /> </VendorLayout> </ProtectedRoute>"
+      }
+    ],
+    "other": [
+      {
+        "path": "/setup-password",
+        "components": [
+          "StudentSetupPassword"
+        ],
+        "raw": "<StudentSetupPassword />"
+      },
+      {
+        "path": "/test-terms",
+        "components": [],
+        "raw": "<div style={{padding: '50px', textAlign: 'center'"
+      },
+      {
+        "path": "/announcements",
+        "components": [
+          "Announcements"
+        ],
+        "raw": "<ProtectedRoute> <Announcements /> </ProtectedRoute>"
+      }
+    ]
+  },
+  "missingKeys": [],
+  "auditData": [
+    {
+      "file": "src/accountant/AccountantDashboard.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/accountant/Expenses.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 23,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "No Due Date",
+        "Mark Paid"
+      ]
+    },
+    {
+      "file": "src/accountant/FeesCollection.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 11,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Refresh Data",
+        "Legacy Payment Reconciliation Active",
+        "Legacy Reconciliation"
+      ]
+    },
+    {
+      "file": "src/accountant/Inventory.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 17,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/accountant/invoice.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/accountant/LegacyReconciliation.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 23,
+      "sampleHardcoded": [
+        "Legacy Payment Reconciliation",
+        "Read-Only Review",
+        "Refresh List"
+      ]
+    },
+    {
+      "file": "src/accountant/mockSocket.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/accountant/PaymentHistory.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 21,
+      "sampleHardcoded": [
+        "Payment History",
+        "Track all transactions and revenue trends",
+        "Total Revenue"
+      ]
+    },
+    {
+      "file": "src/accountant/PaymentModal.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 6,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Accountant Fee Collection",
+        "Selected Collection Stage",
+        "Amount to Collect"
+      ]
+    },
+    {
+      "file": "src/accountant/Sidebar.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 2,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/accountant/Vendors.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Vendor Management",
+        "Manage and track school vendors and suppliers",
+        "Total Vendors"
+      ]
+    },
+    {
+      "file": "src/accountant/WelcomeAccountant.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 17,
+      "sampleHardcoded": [
+        "Welcome Accountant",
+        "Hello,",
+        "Today's Date"
+      ]
+    },
+    {
+      "file": "src/App.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "If you see this, the routing works!",
+        "Click Me!",
+        "Terms Modal Test"
+      ]
+    },
+    {
+      "file": "src/auth/auth.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/calendar/CalendarHeader.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Back",
+        "Academic Calendar"
+      ]
+    },
+    {
+      "file": "src/calendar/CalendarPage.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Checking calendar access...",
+        "Please wait while we verify your subscription.",
+        "Please upgrade your plan to use this feature."
+      ]
+    },
+    {
+      "file": "src/calendar/CalendarSidebar.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "Create Event",
+        "Event Categories",
+        "Live Class"
+      ]
+    },
+    {
+      "file": "src/calendar/CreateEventModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Create Calendar Event",
+        "Students Only",
+        "Select Course"
+      ]
+    },
+    {
+      "file": "src/calendar/EditEventModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Event Details",
+        "Event Title",
+        "Delete Event"
+      ]
+    },
+    {
+      "file": "src/components/AccountantExport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 11,
+      "sampleHardcoded": [
+        "Loading Finance Export...",
+        "Finance Export",
+        "Export finance and inventory data to Excel format"
+      ]
+    },
+    {
+      "file": "src/components/AccountantExportFixed.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 15,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/AccountantLayout.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 1,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Active",
+        "Accountant",
+        "Collapse"
+      ]
+    },
+    {
+      "file": "src/components/AccountantTransactionHistory.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 16,
+      "sampleHardcoded": [
+        "Transaction Management",
+        "Manage and monitor all student fee transactions",
+        "Total Revenue"
+      ]
+    },
+    {
+      "file": "src/components/admin/AddStudentModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Add Student",
+        "Create Student"
+      ]
+    },
+    {
+      "file": "src/components/admin/AddTeacherModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Add Teacher",
+        "Create Teacher"
+      ]
+    },
+    {
+      "file": "src/components/AdminLayout.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 5,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Active",
+        "Admin",
+        "Admin Portal"
+      ]
+    },
+    {
+      "file": "src/components/AnnouncementBell.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 4,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/announcements/AnnouncementCard.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/announcements/CreateAnnouncementModal.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 15,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/BookDemoModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 11,
+      "sampleHardcoded": [
+        "Schedule a Live Walkthrough of Core5 LMS.",
+        "Book Your 1-on-1 Live Session",
+        "Total Student Count"
+      ]
+    },
+    {
+      "file": "src/components/Chatbot/adminChatbotService.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Overview",
+        "Classrooms",
+        "Mentors"
+      ]
+    },
+    {
+      "file": "src/components/Chatbot/adminChatbotService.test.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/Chatbot/chatbotService.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 10,
+      "sampleHardcoded": [
+        "Courses",
+        "Calendar",
+        "Courses"
+      ]
+    },
+    {
+      "file": "src/components/Chatbot/chatbotService.test.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Rishi"
+      ]
+    },
+    {
+      "file": "src/components/Chatbot/LMSChatbot.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 38,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/Chatbot/mentorChatbotService.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "My Classrooms",
+        "My Students",
+        "Class Results"
+      ]
+    },
+    {
+      "file": "src/components/Chatbot/mentorChatbotService.test.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/ControlledTermsModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Mandatory Review",
+        "Welcome to Core5 LMS Enterprise Ecosystem",
+        "I acknowledge"
+      ]
+    },
+    {
+      "file": "src/components/DatabaseExport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 30,
+      "sampleHardcoded": [
+        "Database Export",
+        "Export SQLite database data to Excel format",
+        "Refresh"
+      ]
+    },
+    {
+      "file": "src/components/DataExport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 21,
+      "sampleHardcoded": [
+        "Data Export",
+        "Extract and download data from SQLite database",
+        "Refresh"
+      ]
+    },
+    {
+      "file": "src/components/Footer.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 11,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Core5 Academy",
+        "Core5 Technologies"
+      ]
+    },
+    {
+      "file": "src/components/Footer_Original.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 11,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Core5 Academy",
+        "Core5 Technologies"
+      ]
+    },
+    {
+      "file": "src/components/GlobalLanguageSelector.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/HexSolutions.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Our Solutions",
+        "One Platform, Every Role.",
+        "Explore More"
+      ]
+    },
+    {
+      "file": "src/components/home/PersonaOrbit.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Explore",
+        "Click or drag the wheel"
+      ]
+    },
+    {
+      "file": "src/components/LanguageSelector.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/LoginFooter.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Privacy Policy",
+        "Contact Us",
+        "Welcome to EduMentor LMS"
+      ]
+    },
+    {
+      "file": "src/components/mentor/OverallAiReportModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 21,
+      "sampleHardcoded": [
+        "Overall AI Academic Dossier",
+        "Regenerate",
+        "Classroom"
+      ]
+    },
+    {
+      "file": "src/components/mentor/RapidRollCallModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 14,
+      "sampleHardcoded": [
+        "Rapid Roll Call Cockpit",
+        "A-Z Order",
+        "A-Z Roll Order"
+      ]
+    },
+    {
+      "file": "src/components/mentor/SpeedAttendanceBar.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Mark Attendance",
+        "Mark Attendance",
+        "Present"
+      ]
+    },
+    {
+      "file": "src/components/mentor/StudentAnalyticsDrawer.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Student",
+        "Assigned",
+        "Avg. Score"
+      ]
+    },
+    {
+      "file": "src/components/MentorLayout.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Active",
+        "Mentor"
+      ]
+    },
+    {
+      "file": "src/components/OfflineFeeModal.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 38,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/OTPInput.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/PasswordDisplay.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Vendor Added Successfully!",
+        "Here are the login credentials for the vendor",
+        "Vendor Email"
+      ]
+    },
+    {
+      "file": "src/components/PaymentSuccess.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Payment Successful!",
+        "Your fee payment has been processed successfully.",
+        "Redirecting to dashboard in 3 seconds..."
+      ]
+    },
+    {
+      "file": "src/components/ProgressBar.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Progress"
+      ]
+    },
+    {
+      "file": "src/components/ProtectedRoute.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/QuickLoginModal.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 25,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/QuotaLimitModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Upgrade Your Plan",
+        "Close",
+        "Contact Administrator"
+      ]
+    },
+    {
+      "file": "src/components/RealTimeNotification.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "New Payment Received!"
+      ]
+    },
+    {
+      "file": "src/components/RealTimeTranslator.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Translating..."
+      ]
+    },
+    {
+      "file": "src/components/Requirements.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 18,
+      "sampleHardcoded": [
+        "New Requirement",
+        "Create Requirement Request",
+        "Classroom Name"
+      ]
+    },
+    {
+      "file": "src/components/SimpleLanguageSelector.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/SimplePasswordDisplay.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Close"
+      ]
+    },
+    {
+      "file": "src/components/StudentLayout.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "Active",
+        "Student",
+        "Student Portal"
+      ]
+    },
+    {
+      "file": "src/components/SuperAdminLayout.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 17,
+      "sampleHardcoded": [
+        "Loading...",
+        "Active",
+        "Super Admin"
+      ]
+    },
+    {
+      "file": "src/components/TermsConditionsModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "Welcome to Core5 LMS",
+        "Create derivative works based on Platform Content.",
+        "I acknowledge"
+      ]
+    },
+    {
+      "file": "src/components/TermsModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Terms and Conditions",
+        "Welcome to Core5 Academy!",
+        "Use the platform for educational purposes only"
+      ]
+    },
+    {
+      "file": "src/components/TransactionHistory.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Transaction History",
+        "Your payment history and receipts",
+        "No transactions found"
+      ]
+    },
+    {
+      "file": "src/components/TranslationTest.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 7,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Test Translation",
+        "English",
+        "Arabic"
+      ]
+    },
+    {
+      "file": "src/components/UniversalLanguageSelector.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/components/UniversalTranslator.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Translating..."
+      ]
+    },
+    {
+      "file": "src/components/VendorLayout.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Active",
+        "Vendor",
+        "Collapse"
+      ]
+    },
+    {
+      "file": "src/context/SimpleTranslationContext.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/context/TranslationContext.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/ActionGuard.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/DOMGuard.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/driverAdapter.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/RouteGuard.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/StorageManager.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/TargetGuard.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/core/TourEngine.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/engine/index.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/runtime/GuideBotLauncher.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 2,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/runtime/GuideBotRuntime.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 6,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/admin/onboardingTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/admin/overviewTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Event Title",
+        "Description",
+        "Start"
+      ]
+    },
+    {
+      "file": "src/guidebot/tours/index.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/mentor/onboardingTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/mentor/overviewTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Add Chapter",
+        "Skip this step",
+        "Assign Students"
+      ]
+    },
+    {
+      "file": "src/guidebot/tours/registry.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/schema.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/student/onboardingTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/student/overviewTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/superadmin/onboardingTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/guidebot/tours/superadmin/overviewTour.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/hooks/usePersistentData.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Promise",
+        "Promise",
+        "Promise"
+      ]
+    },
+    {
+      "file": "src/hooks/useUniversalPersistence.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/hooks/useUniversalPersistenceSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/hooks/useUniversalTranslator.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/i18n/index.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/i18n/languageRegistry.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/main.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/accountant/AccountantDashboard.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 28,
+      "sampleHardcoded": [
+        "Loading Accountant Dashboard",
+        "Please wait while we fetch financial data...",
+        "Error Detected"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/AccountantDashboard_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 16,
+      "sampleHardcoded": [
+        "Retry Loading",
+        "Accountant Executive Dashboard",
+        "Refresh Overview"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/DatabaseExport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 26,
+      "sampleHardcoded": [
+        "Export Master Excel",
+        "Some report data could not be loaded",
+        "Instant Excel Download Modules"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/DatabaseExport_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Export system data to various formats",
+        "Export system data to various formats",
+        "Export Options"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/Expenses.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Track all school and institutional expenses",
+        "No Expenses Recorded"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/Expenses_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 13,
+      "sampleHardcoded": [
+        "Loading institutional expense records...",
+        "Retry Loading",
+        "Total Cleared Expenses"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/FeesCollection_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 28,
+      "sampleHardcoded": [
+        "PAID",
+        "Official Tax Payment Invoice",
+        "Receipt Details"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/Inventory.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Manage school inventory and resources",
+        "No Inventory Data"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/Inventory_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Manage school inventory and resources",
+        "No Inventory Data"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/LegacyReconciliationPage.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/accountant/PaymentHistory.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 32,
+      "sampleHardcoded": [
+        "Paid",
+        "Pending",
+        "Failed"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/PaymentHistory_temp.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 32,
+      "sampleHardcoded": [
+        "Paid",
+        "Pending",
+        "Failed"
+      ]
+    },
+    {
+      "file": "src/pages/accountant/reportData.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/accountant/VendorInvoiceManagement.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 28,
+      "sampleHardcoded": [
+        "Payment History",
+        "Refresh",
+        "Total Invoices"
+      ]
+    },
+    {
+      "file": "src/pages/admin/AddStudent.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 26,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/admin/AddTeacher.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 23,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/admin/Admin-Dashboard.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 17,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/admin/Analytics.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 19,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Overall Course Completion Rate",
+        "Calculated across all published curriculums",
+        "Total Courses"
+      ]
+    },
+    {
+      "file": "src/pages/admin/ClassroomDetails.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 10,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Add Student",
+        "No courses have been assigned to this classroom yet",
+        "Enrolled Students"
+      ]
+    },
+    {
+      "file": "src/pages/admin/Classrooms.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 14,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Click the button above to add your first classroom"
+      ]
+    },
+    {
+      "file": "src/pages/admin/CreateClassroomModal.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 20,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/admin/CreateCourseAdmin.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 25,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/admin/DatabaseExport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 28,
+      "sampleHardcoded": [
+        "Database Export",
+        "Refresh",
+        "Overview"
+      ]
+    },
+    {
+      "file": "src/pages/admin/FeeStructure.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 31,
+      "jsxTextCount": 14,
+      "sampleHardcoded": [
+        "Fee Breakdown",
+        "Due Date",
+        "Fee Breakdown"
+      ]
+    },
+    {
+      "file": "src/pages/admin/MentorApproval.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 35,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Approved Mentors",
+        "Pending Approval",
+        "Total Mentors"
+      ]
+    },
+    {
+      "file": "src/pages/admin/StudentImport.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 14,
+      "jsxTextCount": 58,
+      "sampleHardcoded": [
+        "Undo",
+        "Undo",
+        "Column Mapping"
+      ]
+    },
+    {
+      "file": "src/pages/admin/UserList.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 33,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/announcements/CreateAnnouncementModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "New Announcement",
+        "Students",
+        "Faculty"
+      ]
+    },
+    {
+      "file": "src/pages/Announcements.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/assessment-agent/AiAssessmentGenerator.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 13,
+      "sampleHardcoded": [
+        "Back to All Tests",
+        "Generate Assessment with AI",
+        "Pre-filled from the"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/AiPerformanceReport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 9,
+      "sampleHardcoded": [
+        "AI Performance Report",
+        "Report focus",
+        "AI analysis has not been generated yet."
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/AssessmentReport.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 11,
+      "sampleHardcoded": [
+        "Loading report...",
+        "Refresh",
+        "Student"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/AssignmentSubmissions.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 18,
+      "sampleHardcoded": [
+        "Loading...",
+        "AI Suggested Evaluation",
+        "AI Suggested Total"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/assignmentUi.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/assessment-agent/AssignToModal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Assign Assessment",
+        "Select all",
+        "Deselect all"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/QuestionEditor.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "Answer format"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/questionForm.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/assessment-agent/reportPdf.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentAssignment.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 9,
+      "sampleHardcoded": [
+        "My Assignments",
+        "Loading...",
+        "Total marks"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentAssignments.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Open",
+        "My Tests",
+        "My Assignments"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentAttempt.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "My tests",
+        "Loading...",
+        "Your answers"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentPerformance.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 15,
+      "sampleHardcoded": [
+        "Back to AI Assessments",
+        "Loading performance analytics...",
+        "Back to AI Assessments"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentReportNotifications.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/assessment-agent/StudentTests.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "My Tests",
+        "My Assignments",
+        "Loading..."
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/TeacherAssessments.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 15,
+      "sampleHardcoded": [
+        "AI Assessments Studio",
+        "Descriptive Assignments",
+        "Generate with AI"
+      ]
+    },
+    {
+      "file": "src/pages/assessment-agent/TeacherAssignments.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 20,
+      "sampleHardcoded": [
+        "Back to AI Assessments",
+        "Descriptive Assignments Studio",
+        "New Assignment"
+      ]
+    },
+    {
+      "file": "src/pages/Home.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 45,
+      "jsxTextCount": 28,
+      "sampleHardcoded": [
+        "Learning that moves everyone forward.",
+        "University Learning Platform",
+        "Engineering for"
+      ]
+    },
+    {
+      "file": "src/pages/internal/InternalAdminPortal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 25,
+      "sampleHardcoded": [
+        "Unauthorized Access",
+        "You don't have permission to access this portal.",
+        "Internal Admin Portal"
+      ]
+    },
+    {
+      "file": "src/pages/Login.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Email",
+        "Password",
+        "Signing in..."
+      ]
+    },
+    {
+      "file": "src/pages/Login_backup.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 17,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Click to Login",
+        "Storekeeper",
+        "Click to Login"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/AddChapter.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 21,
+      "jsxTextCount": 16,
+      "sampleHardcoded": [
+        "Select a course to add or manage chapters",
+        "No courses found",
+        "Create your first course to add chapters"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/AddQuestions.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Add MCQ Question",
+        "Correct",
+        "Save Question"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/AddResult.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 13,
+      "sampleHardcoded": [
+        "You are not assigned as a class teacher.",
+        "Add Student Result",
+        "Classroom"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/AssignStudents.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 15,
+      "jsxTextCount": 11,
+      "sampleHardcoded": [
+        "Loading courses...",
+        "Back to Courses",
+        "Your Courses"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/AssignStudentsToClassroom.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Assign Students",
+        "Select students to enroll in classroom",
+        "Back"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/Attendance.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 15,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/mentor/AttendanceManagement.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 14,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Classroom",
+        "Select a classroom...",
+        "Download"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/ClassFeeStatus.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 25,
+      "sampleHardcoded": [
+        "Sending Reminders...",
+        "Total Enrolled",
+        "Classroom students"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/ClassResults.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 28,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Select Student",
+        "Term",
+        "Remove"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/ClassroomDetail.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 48,
+      "sampleHardcoded": [
+        "Loading classroom details...",
+        "Back to Classrooms",
+        "Total Students"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/CourseMaterialsUpload.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 13,
+      "sampleHardcoded": [
+        "Loading...",
+        "Back",
+        "Add Material"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/CourseTeacherPortal.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 63,
+      "sampleHardcoded": [
+        "Loading...",
+        "Add Week",
+        "Add Material"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/CreateAssessment.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 1,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Create Assessment",
+        "Create Assessment"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/CreateCourse.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 23,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/mentor/DesignAssessment.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "Add New Question",
+        "Text Question",
+        "Image Question"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/MentorClassrooms.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 6,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Class teacher",
+        "Classroom Session",
+        "Open"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/MentorCourseDetails.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Loading...",
+        "Course not found",
+        "Manage Materials"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/MentorDashboard.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 14,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "You have not been assigned any courses yet."
+      ]
+    },
+    {
+      "file": "src/pages/mentor/MyClassroom.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 18,
+      "sampleHardcoded": [
+        "Loading classroom...",
+        "Browse All Classrooms",
+        "Assigned Class Teacher"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/Progress.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 44,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Chapters",
+        "Materials",
+        "Assessments"
+      ]
+    },
+    {
+      "file": "src/pages/mentor/Requirements.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/onboarding/StudentCustomFields.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Custom fields are not available yet.",
+        "Custom fields could not be loaded.",
+        "No custom field values."
+      ]
+    },
+    {
+      "file": "src/pages/Register.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Create your account to start learning",
+        "Join Core5 Academy",
+        "Enter your details to register as a student"
+      ]
+    },
+    {
+      "file": "src/pages/storekeeper/StorekeeperDashboard.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 1,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Loading Storekeeper Portal...",
+        "Inventory",
+        "Refresh"
+      ]
+    },
+    {
+      "file": "src/pages/student/AttemptAssessment.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 19,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/student/Certificates.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 14,
+      "jsxTextCount": 23,
+      "sampleHardcoded": [
+        "Certificate Preview",
+        "Certificate of Completion",
+        "This certificate is awarded to"
+      ]
+    },
+    {
+      "file": "src/pages/student/Courses.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 26,
+      "jsxTextCount": 5,
+      "sampleHardcoded": [
+        "In Progress",
+        "Completed",
+        "Completed"
+      ]
+    },
+    {
+      "file": "src/pages/student/CourseViewer.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 17,
+      "jsxTextCount": 30,
+      "sampleHardcoded": [
+        "Course not found",
+        "Course Overview",
+        "Done"
+      ]
+    },
+    {
+      "file": "src/pages/student/PayFees.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 30,
+      "sampleHardcoded": [
+        "Payment Verification Pending",
+        "Curriculum Fee Structure Breakdown",
+        "Itemized Charges"
+      ]
+    },
+    {
+      "file": "src/pages/student/Student-Dashboard.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 7,
+      "jsxTextCount": 35,
+      "sampleHardcoded": [
+        "YOUR LEARNING JOURNEY",
+        "Learn Today.",
+        "Build Tomorrow."
+      ]
+    },
+    {
+      "file": "src/pages/student/StudentAssessments.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 3,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/student/StudentAttendance.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 6,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Date",
+        "Classroom",
+        "Status"
+      ]
+    },
+    {
+      "file": "src/pages/student/StudentClassroom.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 4,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/student/StudentResults.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 19,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/student/Subscription.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 13,
+      "sampleHardcoded": [
+        "Unable to load subscription",
+        "Please try again later.",
+        "My Subscription"
+      ]
+    },
+    {
+      "file": "src/pages/student/Timetable.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 9,
+      "jsxTextCount": 1,
+      "sampleHardcoded": [
+        "You are not assigned to any classroom yet."
+      ]
+    },
+    {
+      "file": "src/pages/StudentSetupPassword.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Set your password",
+        "Finish setting up your student account.",
+        "Go to login"
+      ]
+    },
+    {
+      "file": "src/pages/superadmin/CreateUniversityForm.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 15,
+      "sampleHardcoded": [
+        "Create New Institute",
+        "Register a new institution under your network",
+        "Institute Name"
+      ]
+    },
+    {
+      "file": "src/pages/superadmin/CreateUserForm.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 10,
+      "sampleHardcoded": [
+        "Create New Staff Member",
+        "Assign admin, accountant or storekeeper roles",
+        "User Information"
+      ]
+    },
+    {
+      "file": "src/pages/superadmin/SuperAdminDashboard.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 78,
+      "sampleHardcoded": [
+        "Institute Dashboard",
+        "Team Member Created Successfully!",
+        "Total"
+      ]
+    },
+    {
+      "file": "src/pages/superadmin/SuperAdminLogin.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 18,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/pages/superadmin/SuperAdminSubscription.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 7,
+      "sampleHardcoded": [
+        "Choose Your Plan",
+        "Most Popular",
+        "CURRENT PLAN"
+      ]
+    },
+    {
+      "file": "src/pages/TestUniversalPersistence.jsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 14,
+      "sampleHardcoded": [
+        "Testing universal persistence...",
+        "Error",
+        "Universal Persistence Test"
+      ]
+    },
+    {
+      "file": "src/services/databaseService.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/services/passwordResetService.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/services/universalAPI.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/store/transactionStore.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/storekeeper/InventoryManagement.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 22,
+      "jsxTextCount": 15,
+      "sampleHardcoded": [
+        "Inventory Management",
+        "Add Item",
+        "Order"
+      ]
+    },
+    {
+      "file": "src/storekeeper/InventoryManagementSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Inventory Management",
+        "Add Stock Item",
+        "Total Items"
+      ]
+    },
+    {
+      "file": "src/storekeeper/Reports.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 11,
+      "sampleHardcoded": [
+        "Generate and download various reports",
+        "Inventory Report",
+        "Total Items"
+      ]
+    },
+    {
+      "file": "src/storekeeper/RequestStatus.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "Request Status",
+        "Request Status",
+        "Loading..."
+      ]
+    },
+    {
+      "file": "src/storekeeper/Requirements.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/storekeeper/Sidebar.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 2,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/storekeeper/StockRequest.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 42,
+      "sampleHardcoded": [
+        "Retry",
+        "Stock Management",
+        "Request materials or browse vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/StockRequestsNew.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 65,
+      "sampleHardcoded": [
+        "Retry",
+        "Stock Requests",
+        "Manage and track stock requests"
+      ]
+    },
+    {
+      "file": "src/storekeeper/StockRequestsSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 54,
+      "sampleHardcoded": [
+        "Retry",
+        "Stock Requests",
+        "Manage and track stock requests"
+      ]
+    },
+    {
+      "file": "src/storekeeper/StorekeeperDashboard.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/storekeeper/StorekeeperDashboardDebug.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 8,
+      "sampleHardcoded": [
+        "Storekeeper Dashboard",
+        "Debug Version",
+        "Storekeeper Dashboard - Debug"
+      ]
+    },
+    {
+      "file": "src/storekeeper/StorekeeperDashboardFixed.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Loading Storekeeper Dashboard...",
+        "Storekeeper Dashboard"
+      ]
+    },
+    {
+      "file": "src/storekeeper/StorekeeperDashboardSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/storekeeper/StorekeeperDashboardWorking.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 2,
+      "sampleHardcoded": [
+        "Loading Storekeeper Dashboard...",
+        "Storekeeper Dashboard"
+      ]
+    },
+    {
+      "file": "src/storekeeper/TestStockRequest.tsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 3,
+      "sampleHardcoded": [
+        "Test Stock Request",
+        "This is a test component to verify routing works",
+        "If you can see this, the routing is working!"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorManagement.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 23,
+      "sampleHardcoded": [
+        "Vendor Management",
+        "Manage suppliers and vendor relationships",
+        "Total Vendors"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorManagementSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 23,
+      "sampleHardcoded": [
+        "Add New Vendor",
+        "Vendors",
+        "Active partners"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockBrowserFinal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 32,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockBrowserFixed.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockBrowserNew.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 36,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse and compare vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockBrowserSimple.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse and compare vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockBrowserWorking.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/VendorStockSimpleWorking.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 19,
+      "sampleHardcoded": [
+        "Retry",
+        "Vendor Stock Browser",
+        "Browse vendor inventory"
+      ]
+    },
+    {
+      "file": "src/storekeeper/WelcomeStorekeeper.tsx",
+      "hasUseTranslation": true,
+      "tCallsCount": 0,
+      "jsxTextCount": 12,
+      "sampleHardcoded": [
+        "Welcome back,",
+        "Today's Date",
+        "Live Time"
+      ]
+    },
+    {
+      "file": "src/ui/gaming-login.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 4,
+      "sampleHardcoded": [
+        "NexusGate",
+        "Your gaming universe awaits",
+        "Remember me"
+      ]
+    },
+    {
+      "file": "src/utils/apiErrorHandler.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/axiosInstance.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/browserCompatibility.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/directTranslator.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/freeTranslator.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/langDetect.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/libreTranslate.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/passwordUtils.js",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/utils/translate.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/vendor/VendorDashboard.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 6,
+      "sampleHardcoded": [
+        "Loading dashboard...",
+        "Vendor Dashboard",
+        "Recent Invoices"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorInvoices.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 38,
+      "sampleHardcoded": [
+        "Loading invoices...",
+        "Invoices",
+        "Manage your invoices and payments"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorOrders.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 29,
+      "sampleHardcoded": [
+        "Orders",
+        "Manage and track your orders",
+        "All Status"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorPayments.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 29,
+      "sampleHardcoded": [
+        "Payments",
+        "Track your earnings and payment history",
+        "Export Report"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorProfile.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 24,
+      "sampleHardcoded": [
+        "Profile",
+        "Manage your vendor information",
+        "Edit Profile"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorRequests.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 23,
+      "sampleHardcoded": [
+        "Loading requests...",
+        "Error Loading Requests",
+        "Retry"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorStock.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 20,
+      "sampleHardcoded": [
+        "Stock Management",
+        "Manage your material inventory and stock levels",
+        "Add Item"
+      ]
+    },
+    {
+      "file": "src/vendor/VendorStockMinimal.jsx",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    },
+    {
+      "file": "src/vite-env.d.ts",
+      "hasUseTranslation": false,
+      "tCallsCount": 0,
+      "jsxTextCount": 0,
+      "sampleHardcoded": []
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+================================================================================
+                    SQLITE TO POSTGRESQL MIGRATION GUIDE
+================================================================================
+
+This guide will help you safely migrate your entire SQLite database to PostgreSQL
+without losing any data or breaking your application logic.
+
+================================================================================
+                            PRE-MIGRATION STEPS
+================================================================================
+
+1. INSTALL POSTGRESQL
+   - Download and install PostgreSQL from https://www.postgresql.org/download/
+   - For Windows: Use the installer and remember your postgres password
+   - Default connection: localhost:5432, user: postgres
+
+2. CREATE POSTGRESQL DATABASE
+   Open pgAdmin or psql and run:
+   CREATE DATABASE lms_database;
+   
+   Or use the command line:
+   createdb -U postgres lms_database
+
+3. UPDATE ENVIRONMENT VARIABLES
+   Add these to your .env file:
+   PG_HOST=localhost
+   PG_PORT=5432
+   PG_USER=postgres
+   PG_PASSWORD=your_postgres_password
+   PG_DATABASE=lms_database
+
+================================================================================
+                            MIGRATION STEPS
+================================================================================
+
+1. BACKUP YOUR DATA (AUTOMATIC)
+   The migration script automatically creates a backup of your SQLite database
+   in the /server/backups/ folder.
+
+2. RUN MIGRATION SCRIPT
+   From the /server directory, run:
+   node migrate-to-postgres-safe.js
+
+3. VERIFY MIGRATION
+   The script will:
+   - Create all tables with proper PostgreSQL types
+   - Migrate all data without duplicates
+   - Create indexes for performance
+   - Generate a migration log
+
+================================================================================
+                            POST-MIGRATION STEPS
+================================================================================
+
+1. UPDATE APPLICATION TO USE POSTGRESQL
+   Add to your .env file:
+   USE_POSTGRES=true
+
+2. UPDATE DATABASE IMPORTS
+   Change all database imports from:
+   const db = require('./config/sqlite-db');
+   To:
+   const db = require('./config/database-switch');
+
+3. UPDATE SERVER.JS
+   Find all instances of:
+   const db = require('./config/sqlite-db');
+   And replace with:
+   const db = require('./config/database-switch');
+
+4. TEST APPLICATION
+   - Start your backend server
+   - Test all CRUD operations
+   - Verify data integrity
+
+================================================================================
+                            ROLLBACK PLAN
+================================================================================
+
+If you need to rollback to SQLite:
+
+1. STOP THE APPLICATION
+2. UPDATE .env FILE:
+   Remove or set: USE_POSTGRES=false
+3. RESTORE BACKUP (if needed):
+   Copy the backup file from /server/backups/ to replace lms-database.sqlite
+4. RESTART APPLICATION
+
+================================================================================
+                            SAFETY FEATURES
+================================================================================
+
+The migration includes:
+
+- Automatic backup creation
+- Batch processing for large datasets
+- Error handling and logging
+- Progress indicators
+- Duplicate prevention (ON CONFLICT DO NOTHING)
+- Type conversion (SQLite to PostgreSQL)
+- Foreign key constraint preservation
+- Index recreation
+- Migration logs
+
+================================================================================
+                            TROUBLESHOOTING
+================================================================================
+
+Common Issues:
+
+1. Connection Error:
+   - Check PostgreSQL is running
+   - Verify credentials in .env
+   - Ensure database exists
+
+2. Permission Error:
+   - Run PostgreSQL as administrator
+   - Check user permissions
+
+3. Data Type Errors:
+   - The script handles most type conversions automatically
+   - Check migration log for any issues
+
+4. Performance Issues:
+   - Migration processes data in batches of 100 rows
+   - Large databases may take time
+
+================================================================================
+                            VERIFICATION CHECKLIST
+================================================================================
+
+After migration, verify:
+
+[ ] All tables exist in PostgreSQL
+[ ] All records are present
+[ ] Foreign keys work correctly
+[ ] Indexes are created
+[ ] Application connects successfully
+[ ] CRUD operations work
+[ ] No data corruption
+
+================================================================================
+                            CONTACT SUPPORT
+================================================================================
+
+If you encounter issues:
+1. Check the migration log in /server/backups/
+2. Review PostgreSQL logs
+3. Test with a small dataset first
+
+================================================================================

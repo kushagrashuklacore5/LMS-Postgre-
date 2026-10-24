@@ -1,0 +1,5 @@
+EMAIL_SERVICE=gmail
+EMAIL_USER=sakshi.mishra@core5.co.in
+EMAIL_PASS=replace-with-your-mailbox-app-password
+EMAIL_FROM=Core5 Academy <sakshi.mishra@core5.co.in>
+ADMIN_NOTIFICATION_EMAIL=sakshi.mishra@core5.co.in

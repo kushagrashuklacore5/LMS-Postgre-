@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Vendor API Test</h1>
+    <button onclick="testVendorAPI()">Test Vendor API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testVendorAPI() {
+            console.log('Testing vendor API...');
+            
+            // Simulate vendor login token (you'll need to get this from browser)
+            const token = localStorage.getItem('token');
+            console.log('Token:', token);
+            
+            if (!token) {
+                document.getElementById('result').innerHTML = 'No token found. Please login first.';
+                return;
+            }
+            
+            try {
+                const response = await fetch('https://core5.io/api/vendor/requests', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>API Response:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <p>Found ${data.data?.length || 0} requests</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

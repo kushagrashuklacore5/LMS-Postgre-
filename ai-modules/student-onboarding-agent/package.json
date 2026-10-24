@@ -1,0 +1,24 @@
+{
+  "name": "student-onboarding-agent",
+  "version": "0.0.1",
+  "description": "Student Onboarding Agent - standalone AI module for LLM-assisted Excel student import, onboarding and verification. Not yet integrated with the LMS.",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "backend/src/server.js",
+  "engines": {
+    "node": ">=18.11"
+  },
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "node --watch backend/src/server.js",
+    "test": "node --test",
+    "mapping:manual": "node backend/scripts/manual-mapping-check.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^18.0.3",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "multer": "^2.4.0"
+  }
+}

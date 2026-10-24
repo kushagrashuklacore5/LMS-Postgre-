@@ -1,0 +1,4 @@
+node_modules/
+.env
+# Descriptive Assignments: uploaded student PDFs (local submission store). Never commit.
+data/

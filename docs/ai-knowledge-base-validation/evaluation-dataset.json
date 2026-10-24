@@ -1,0 +1,1130 @@
+{
+  "description": "Evaluation questions for the Core5 Academy help knowledge base. For each question: the role asking, the intent, the document that must answer it, phrases that document must contain (case-insensitive), and phrases that must not appear in the answer source. Checked by validate-kb.js (document sufficiency + a lexical retrieval proxy). This does NOT test the live chatbot.",
+  "forbidden_everywhere": [
+    "SELECT ",
+    "INSERT INTO",
+    "UPDATE users",
+    "/api/",
+    "course_students",
+    "university_id",
+    "router.",
+    "req.user",
+    "npm ",
+    "node server"
+  ],
+  "questions": [
+    {
+      "id": "Q01",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I add a student?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-student",
+      "must_include": [
+        "Add Student",
+        "Full Name",
+        "Email Address",
+        "Save Student",
+        "Copy password"
+      ]
+    },
+    {
+      "id": "Q02",
+      "category": "variation",
+      "role": "admin",
+      "question": "Bhai student kaise add karun?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-student",
+      "must_include": [
+        "Add Student",
+        "Save Student"
+      ]
+    },
+    {
+      "id": "Q03",
+      "category": "variation",
+      "role": "admin",
+      "question": "Where can I register a new student?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-student",
+      "must_include": [
+        "Admin sidebar",
+        "Add Student"
+      ]
+    },
+    {
+      "id": "Q04",
+      "category": "troubleshooting",
+      "role": "teacher",
+      "question": "I cannot find the Add Student button",
+      "intent": "troubleshooting",
+      "expected_doc": "troubleshooting-common-problems",
+      "must_include": [
+        "Only admins have it"
+      ]
+    },
+    {
+      "id": "Q05",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "What happens after I save the student?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-student",
+      "must_include": [
+        "Student created successfully",
+        "only this once",
+        "All students of the class"
+      ]
+    },
+    {
+      "id": "Q06",
+      "category": "troubleshooting",
+      "role": "admin",
+      "question": "What should I do if saving a student fails?",
+      "intent": "troubleshooting",
+      "expected_doc": "admin-add-student",
+      "must_include": [
+        "Student already exists",
+        "Class is required"
+      ]
+    },
+    {
+      "id": "Q07",
+      "category": "live-data",
+      "role": "admin",
+      "question": "How many students are there?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Total Students",
+        "must not guess a number"
+      ]
+    },
+    {
+      "id": "Q08",
+      "category": "variation",
+      "role": "admin",
+      "question": "Kitne students hain school mein?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Total Students",
+        "Users"
+      ]
+    },
+    {
+      "id": "Q09",
+      "category": "live-data",
+      "role": "admin",
+      "question": "How many students are in class 5-A?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Classrooms",
+        "Students in that class"
+      ]
+    },
+    {
+      "id": "Q10",
+      "category": "live-data",
+      "role": "admin",
+      "question": "How many students take this course?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Courses",
+        "student(s)"
+      ]
+    },
+    {
+      "id": "Q11",
+      "category": "live-data",
+      "role": "teacher",
+      "question": "How many students do I have?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "My Students",
+        "counted twice"
+      ]
+    },
+    {
+      "id": "Q12",
+      "category": "live-data",
+      "role": "admin",
+      "question": "How many teachers do we have?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Total Mentors"
+      ]
+    },
+    {
+      "id": "Q13",
+      "category": "live-data",
+      "role": "accountant",
+      "question": "How much fee has been collected?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Total Fees Collected"
+      ]
+    },
+    {
+      "id": "Q14",
+      "category": "live-data",
+      "role": "superadmin",
+      "question": "How many institutes are on the platform?",
+      "intent": "data-and-reports",
+      "expected_doc": "superadmin-institutes-and-staff",
+      "must_include": [
+        "Institutes & Universities",
+        "Overview"
+      ]
+    },
+    {
+      "id": "Q15",
+      "category": "live-data",
+      "role": "student",
+      "question": "What is my attendance percentage?",
+      "intent": "data-and-reports",
+      "expected_doc": "student-results-attendance-fees",
+      "must_include": [
+        "Attendance %"
+      ]
+    },
+    {
+      "id": "Q16",
+      "category": "live-data",
+      "role": "teacher",
+      "question": "Where can I see who attended my live class?",
+      "intent": "data-and-reports",
+      "expected_doc": "teacher-live-classes",
+      "must_include": [
+        "Attended",
+        "Missed",
+        "Your Lectures"
+      ]
+    },
+    {
+      "id": "Q17",
+      "category": "live-data",
+      "role": "admin",
+      "question": "Where are the analytics / statistics?",
+      "intent": "data-and-reports",
+      "expected_doc": "reports-and-counts",
+      "must_include": [
+        "Analytics Dashboard",
+        "/admin/analytics"
+      ]
+    },
+    {
+      "id": "Q18",
+      "category": "live-data",
+      "role": "teacher",
+      "question": "Where do I see my test results?",
+      "intent": "data-and-reports",
+      "expected_doc": "teacher-ai-tests",
+      "must_include": [
+        "Report"
+      ]
+    },
+    {
+      "id": "Q19",
+      "category": "live-data",
+      "role": "student",
+      "question": "Where are my marks?",
+      "intent": "data-and-reports",
+      "expected_doc": "student-results-attendance-fees",
+      "must_include": [
+        "Results",
+        "Overall Percentage"
+      ]
+    },
+    {
+      "id": "Q20",
+      "category": "live-data",
+      "role": "accountant",
+      "question": "How do I see students with pending fees?",
+      "intent": "data-and-reports",
+      "expected_doc": "accountant-fees-and-payments",
+      "must_include": [
+        "Fee Monitoring & Reminders",
+        "Known problem"
+      ]
+    },
+    {
+      "id": "Q21",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "Where do I create a course?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-create",
+      "must_include": [
+        "Courses",
+        "New course",
+        "Create Course & Assign Students"
+      ]
+    },
+    {
+      "id": "Q22",
+      "category": "variation",
+      "role": "admin",
+      "question": "Course kaise banaun?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-create",
+      "must_include": [
+        "Course Title",
+        "Assign Mentor",
+        "Classes"
+      ]
+    },
+    {
+      "id": "Q23",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I give a course to only some students of a class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-create",
+      "must_include": [
+        "Selected students",
+        "Select all"
+      ]
+    },
+    {
+      "id": "Q24",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I remove a student from a course?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-manage",
+      "must_include": [
+        "untick",
+        "Remove from course?",
+        "Remove N student(s)"
+      ]
+    },
+    {
+      "id": "Q25",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I assign a course to another class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-manage",
+      "must_include": [
+        "Assign to classes",
+        "Assigned"
+      ]
+    },
+    {
+      "id": "Q26",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I remove a class from a course?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-courses-manage",
+      "must_include": [
+        "Remove class assignment?",
+        "at least one class"
+      ]
+    },
+    {
+      "id": "Q27",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I create a class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-classrooms",
+      "must_include": [
+        "Create Classroom",
+        "Section",
+        "Class Teacher",
+        "Create"
+      ]
+    },
+    {
+      "id": "Q28",
+      "category": "variation",
+      "role": "admin",
+      "question": "Class aur section kaise banaun?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-classrooms",
+      "must_include": [
+        "Create Classroom"
+      ]
+    },
+    {
+      "id": "Q29",
+      "category": "troubleshooting",
+      "role": "admin",
+      "question": "Why can't I create a classroom?",
+      "intent": "troubleshooting",
+      "expected_doc": "admin-classrooms",
+      "must_include": [
+        "Add a teacher first",
+        "already exists"
+      ]
+    },
+    {
+      "id": "Q30",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I add a student to a class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-classrooms",
+      "must_include": [
+        "Add Student",
+        "Assign Student"
+      ]
+    },
+    {
+      "id": "Q31",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I add a teacher?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-teacher",
+      "must_include": [
+        "Add Teacher",
+        "Save Teacher",
+        "Temporary Password"
+      ]
+    },
+    {
+      "id": "Q32",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I import students from Excel?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-import-students",
+      "must_include": [
+        "Import Students",
+        "Upload and check",
+        "Approve import",
+        "Execute import"
+      ]
+    },
+    {
+      "id": "Q33",
+      "category": "variation",
+      "role": "admin",
+      "question": "Bulk mein students kaise daalun?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-import-students",
+      "must_include": [
+        "Download Template"
+      ]
+    },
+    {
+      "id": "Q34",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I change a student's class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-manage-users",
+      "must_include": [
+        "Change Class",
+        "Update Class"
+      ]
+    },
+    {
+      "id": "Q35",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I delete a user?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-manage-users",
+      "must_include": [
+        "Delete",
+        "cannot be undone",
+        "Admin accounts cannot be deleted"
+      ]
+    },
+    {
+      "id": "Q36",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "Where can I see the list of all students?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-manage-users",
+      "must_include": [
+        "Users",
+        "User Management",
+        "Role"
+      ]
+    },
+    {
+      "id": "Q37",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I set up fees?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-fee-structure",
+      "must_include": [
+        "Fee Structure",
+        "Save Primary Structure",
+        "Add Installment Plan"
+      ]
+    },
+    {
+      "id": "Q38",
+      "category": "troubleshooting",
+      "role": "admin",
+      "question": "My custom installment plan won't save",
+      "intent": "troubleshooting",
+      "expected_doc": "admin-fee-structure",
+      "must_include": [
+        "exactly 100%"
+      ]
+    },
+    {
+      "id": "Q39",
+      "category": "ui-guidance",
+      "role": "admin",
+      "question": "How do I send an announcement to students?",
+      "intent": "task-procedure",
+      "expected_doc": "general-notifications-calendar",
+      "must_include": [
+        "+ Announcement",
+        "Students",
+        "Publish"
+      ]
+    },
+    {
+      "id": "Q40",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I add an event to the calendar?",
+      "intent": "task-procedure",
+      "expected_doc": "general-notifications-calendar",
+      "must_include": [
+        "Create Event",
+        "Display for"
+      ]
+    },
+    {
+      "id": "Q41",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I mark attendance?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-attendance",
+      "must_include": [
+        "Attendance",
+        "Present",
+        "Absent",
+        "Save Attendance"
+      ]
+    },
+    {
+      "id": "Q42",
+      "category": "variation",
+      "role": "teacher",
+      "question": "Attendance kaise lagaun?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-attendance",
+      "must_include": [
+        "Save Attendance"
+      ]
+    },
+    {
+      "id": "Q43",
+      "category": "troubleshooting",
+      "role": "teacher",
+      "question": "Can I mark attendance for tomorrow?",
+      "intent": "troubleshooting",
+      "expected_doc": "teacher-attendance",
+      "must_include": [
+        "future date"
+      ]
+    },
+    {
+      "id": "Q44",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I enter marks?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-results",
+      "must_include": [
+        "Class Results",
+        "Save All Results",
+        "Add Result"
+      ]
+    },
+    {
+      "id": "Q45",
+      "category": "variation",
+      "role": "teacher",
+      "question": "Report card ke marks kahan daalun?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-results",
+      "must_include": [
+        "Results Management"
+      ]
+    },
+    {
+      "id": "Q46",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I upload a PDF or video for my course?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-course-portal",
+      "must_include": [
+        "Course Portal",
+        "Add Material",
+        "PDF Upload"
+      ]
+    },
+    {
+      "id": "Q47",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I create a test?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-ai-tests",
+      "must_include": [
+        "AI Assessments",
+        "New Test",
+        "Create Draft Test",
+        "Publish Test",
+        "Confirm & Assign"
+      ]
+    },
+    {
+      "id": "Q48",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I generate questions with AI?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-ai-tests",
+      "must_include": [
+        "Generate with AI",
+        "Save as Draft"
+      ]
+    },
+    {
+      "id": "Q49",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I let a student retake a test?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-ai-tests",
+      "must_include": [
+        "Reset",
+        "3 times"
+      ]
+    },
+    {
+      "id": "Q50",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I give an assignment?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-assignments",
+      "must_include": [
+        "Descriptive Assignments",
+        "New Assignment",
+        "Publish Assignment"
+      ]
+    },
+    {
+      "id": "Q51",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I grade submissions?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-assignments",
+      "must_include": [
+        "View Submissions",
+        "Save & Publish Final Marks"
+      ]
+    },
+    {
+      "id": "Q52",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I start a live class?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-live-classes",
+      "must_include": [
+        "Start Class",
+        "Start now",
+        "End class"
+      ]
+    },
+    {
+      "id": "Q53",
+      "category": "variation",
+      "role": "teacher",
+      "question": "Kal ke liye online class schedule karni hai",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-live-classes",
+      "must_include": [
+        "Schedule",
+        "Date and time"
+      ]
+    },
+    {
+      "id": "Q54",
+      "category": "troubleshooting",
+      "role": "teacher",
+      "question": "Start Class says I do not teach a course to this class",
+      "intent": "troubleshooting",
+      "expected_doc": "teacher-live-classes",
+      "must_include": [
+        "Ask the admin to give you a course"
+      ]
+    },
+    {
+      "id": "Q55",
+      "category": "role-specific",
+      "role": "teacher",
+      "question": "Why do I see only some students in my class?",
+      "intent": "feature-explanation",
+      "expected_doc": "teacher-classrooms-and-students",
+      "must_include": [
+        "course teacher",
+        "My Course Students"
+      ]
+    },
+    {
+      "id": "Q56",
+      "category": "role-specific",
+      "role": "teacher",
+      "question": "Why can't I add students to the class?",
+      "intent": "feature-explanation",
+      "expected_doc": "teacher-classrooms-and-students",
+      "must_include": [
+        "Class teacher only"
+      ]
+    },
+    {
+      "id": "Q57",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "Where can I see my students?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-classrooms-and-students",
+      "must_include": [
+        "My Students",
+        "Choose a course"
+      ]
+    },
+    {
+      "id": "Q58",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I request markers for my classroom?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-requirements",
+      "must_include": [
+        "Requirements",
+        "New Requirement"
+      ]
+    },
+    {
+      "id": "Q59",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "How do I join the live class?",
+      "intent": "task-procedure",
+      "expected_doc": "student-live-classes",
+      "must_include": [
+        "Join now",
+        "Your Lectures",
+        "10 minutes"
+      ]
+    },
+    {
+      "id": "Q60",
+      "category": "variation",
+      "role": "student",
+      "question": "Live class ka link kahan hai?",
+      "intent": "task-procedure",
+      "expected_doc": "student-live-classes",
+      "must_include": [
+        "Join"
+      ]
+    },
+    {
+      "id": "Q61",
+      "category": "troubleshooting",
+      "role": "student",
+      "question": "The Join button is grey",
+      "intent": "troubleshooting",
+      "expected_doc": "student-live-classes",
+      "must_include": [
+        "10 minutes before"
+      ]
+    },
+    {
+      "id": "Q62",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "Where are my courses?",
+      "intent": "task-procedure",
+      "expected_doc": "student-courses-and-learning",
+      "must_include": [
+        "My Courses",
+        "Continue"
+      ]
+    },
+    {
+      "id": "Q63",
+      "category": "role-specific",
+      "role": "student",
+      "question": "Why can't I see a course my classmate has?",
+      "intent": "feature-explanation",
+      "expected_doc": "student-courses-and-learning",
+      "must_include": [
+        "enrolled"
+      ]
+    },
+    {
+      "id": "Q64",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "How do I get my certificate?",
+      "intent": "task-procedure",
+      "expected_doc": "student-courses-and-learning",
+      "must_include": [
+        "every chapter",
+        "Download PDF"
+      ]
+    },
+    {
+      "id": "Q65",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "How do I take my test?",
+      "intent": "task-procedure",
+      "expected_doc": "student-tests-and-assignments",
+      "must_include": [
+        "My Tests",
+        "Start",
+        "Submit test"
+      ]
+    },
+    {
+      "id": "Q66",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "How do I submit my homework?",
+      "intent": "task-procedure",
+      "expected_doc": "student-tests-and-assignments",
+      "must_include": [
+        "Assignments",
+        "PDF",
+        "Submit assignment"
+      ]
+    },
+    {
+      "id": "Q67",
+      "category": "ui-guidance",
+      "role": "student",
+      "question": "How do I pay my fees?",
+      "intent": "task-procedure",
+      "expected_doc": "student-results-attendance-fees",
+      "must_include": [
+        "Fees & Payments",
+        "not available yet",
+        "school office"
+      ]
+    },
+    {
+      "id": "Q68",
+      "category": "ui-guidance",
+      "role": "accountant",
+      "question": "How do I record a cash fee payment?",
+      "intent": "task-procedure",
+      "expected_doc": "accountant-fees-and-payments",
+      "must_include": [
+        "Collect Offline Fee",
+        "Submit & Generate Receipt"
+      ]
+    },
+    {
+      "id": "Q69",
+      "category": "ui-guidance",
+      "role": "accountant",
+      "question": "How do I pay a vendor invoice?",
+      "intent": "task-procedure",
+      "expected_doc": "accountant-fees-and-payments",
+      "must_include": [
+        "Pay Now",
+        "Process Payment"
+      ]
+    },
+    {
+      "id": "Q70",
+      "category": "ui-guidance",
+      "role": "superadmin",
+      "question": "How do I add a new school?",
+      "intent": "task-procedure",
+      "expected_doc": "superadmin-institutes-and-staff",
+      "must_include": [
+        "Add Institute",
+        "Create Institute",
+        "Copy Password"
+      ]
+    },
+    {
+      "id": "Q71",
+      "category": "role-specific",
+      "role": "superadmin",
+      "question": "How do I reset a staff member's password?",
+      "intent": "task-procedure",
+      "expected_doc": "superadmin-institutes-and-staff",
+      "must_include": [
+        "Edit User",
+        "Reset Password"
+      ]
+    },
+    {
+      "id": "Q72",
+      "category": "ui-guidance",
+      "role": "any",
+      "question": "How do I log in?",
+      "intent": "task-procedure",
+      "expected_doc": "general-login-and-password",
+      "must_include": [
+        "SIGN IN",
+        "Email or Username"
+      ]
+    },
+    {
+      "id": "Q73",
+      "category": "unsupported",
+      "role": "student",
+      "question": "I forgot my password, how do I reset it by email?",
+      "intent": "unsupported",
+      "expected_doc": "general-login-and-password",
+      "must_include": [
+        "only reloads the login page"
+      ]
+    },
+    {
+      "id": "Q74",
+      "category": "troubleshooting",
+      "role": "teacher",
+      "question": "My account says waiting for approval",
+      "intent": "troubleshooting",
+      "expected_doc": "general-login-and-password",
+      "must_include": [
+        "waiting for approval",
+        "approve"
+      ]
+    },
+    {
+      "id": "Q75",
+      "category": "role-specific",
+      "role": "any",
+      "question": "What is the difference between a class teacher and a course teacher?",
+      "intent": "feature-explanation",
+      "expected_doc": "general-portals-and-roles",
+      "must_include": [
+        "Class teacher",
+        "Course teacher"
+      ]
+    },
+    {
+      "id": "Q76",
+      "category": "role-specific",
+      "role": "any",
+      "question": "What can a student do in the LMS?",
+      "intent": "feature-explanation",
+      "expected_doc": "general-portals-and-roles",
+      "must_include": [
+        "Student Portal",
+        "Your Lectures"
+      ]
+    },
+    {
+      "id": "Q77",
+      "category": "role-specific",
+      "role": "admin",
+      "question": "Can the admin join a live class?",
+      "intent": "feature-explanation",
+      "expected_doc": "admin-lectures-history",
+      "must_include": [
+        "Start",
+        "join",
+        "no"
+      ]
+    },
+    {
+      "id": "Q78",
+      "category": "role-specific",
+      "role": "admin",
+      "question": "Where can I see the online classes of a class?",
+      "intent": "task-procedure",
+      "expected_doc": "admin-lectures-history",
+      "must_include": [
+        "Lectures"
+      ]
+    },
+    {
+      "id": "Q79",
+      "category": "unsupported",
+      "role": "admin",
+      "question": "How do I delete a class?",
+      "intent": "unsupported",
+      "expected_doc": "unsupported-and-unknown",
+      "must_include": [
+        "Delete a class",
+        "Not available"
+      ]
+    },
+    {
+      "id": "Q80",
+      "category": "unsupported",
+      "role": "teacher",
+      "question": "Can I record the live class?",
+      "intent": "unsupported",
+      "expected_doc": "unsupported-and-unknown",
+      "must_include": [
+        "Record a live class"
+      ]
+    },
+    {
+      "id": "Q81",
+      "category": "unsupported",
+      "role": "teacher",
+      "question": "Can I use Zoom for my live class?",
+      "intent": "unsupported",
+      "expected_doc": "unsupported-and-unknown",
+      "must_include": [
+        "Zoom"
+      ]
+    },
+    {
+      "id": "Q82",
+      "category": "unsupported",
+      "role": "admin",
+      "question": "Show me the student's password again",
+      "intent": "unsupported",
+      "expected_doc": "unsupported-and-unknown",
+      "must_include": [
+        "shown only once"
+      ]
+    },
+    {
+      "id": "Q83",
+      "category": "ambiguous",
+      "role": "unknown",
+      "question": "How do I add someone?",
+      "intent": "ambiguous",
+      "expected_doc": "troubleshooting-common-problems",
+      "must_include": [
+        "Add Student",
+        "Add Teacher"
+      ],
+      "note": "Ambiguous: the assistant should ask whether a student or a teacher, and confirm the user's role; both procedures exist only for admins."
+    },
+    {
+      "id": "Q84",
+      "category": "troubleshooting",
+      "role": "student",
+      "question": "Why does it say not found when I open a course?",
+      "intent": "troubleshooting",
+      "expected_doc": "troubleshooting-common-problems",
+      "must_include": [
+        "enrolled",
+        "not found"
+      ]
+    },
+    {
+      "id": "Q85",
+      "category": "troubleshooting",
+      "role": "admin",
+      "question": "Why can't I open the calendar?",
+      "intent": "troubleshooting",
+      "expected_doc": "general-notifications-calendar",
+      "must_include": [
+        "restricted on your current plan"
+      ]
+    },
+    {
+      "id": "Q86",
+      "category": "troubleshooting",
+      "role": "admin",
+      "question": "A new student doesn't see an older course",
+      "intent": "troubleshooting",
+      "expected_doc": "troubleshooting-common-problems",
+      "must_include": [
+        "Selected students"
+      ]
+    },
+    {
+      "id": "Q87",
+      "category": "role-specific",
+      "role": "student",
+      "question": "Can I see my classmates' marks?",
+      "intent": "unsupported",
+      "expected_doc": "unsupported-and-unknown",
+      "must_include": [
+        "other students' marks"
+      ]
+    },
+    {
+      "id": "Q88",
+      "category": "variation",
+      "role": "admin",
+      "question": "naya teacher kaise jodun",
+      "intent": "task-procedure",
+      "expected_doc": "admin-add-teacher",
+      "must_include": [
+        "Add Teacher"
+      ]
+    },
+    {
+      "id": "Q89",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How to see student performance?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-student-performance",
+      "must_include": [
+        "View Results Report",
+        "View Analytics",
+        "Student Performance Analyst"
+      ]
+    },
+    {
+      "id": "Q90",
+      "category": "variation",
+      "role": "teacher",
+      "question": "bhai how to create new ai assesment",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-ai-tests",
+      "must_include": [
+        "AI Assessments",
+        "New Test",
+        "Generate with AI"
+      ]
+    },
+    {
+      "id": "Q91",
+      "category": "ui-guidance",
+      "role": "teacher",
+      "question": "How do I generate an AI report for a student and send it to them?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-student-performance",
+      "must_include": [
+        "Generate AI Report",
+        "Send to Student"
+      ]
+    },
+    {
+      "id": "Q92",
+      "category": "variation",
+      "role": "teacher",
+      "question": "Student ki performance kaise dekhun?",
+      "intent": "task-procedure",
+      "expected_doc": "teacher-student-performance",
+      "must_include": [
+        "View Analytics"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+// Comprehensive test for accountant invoices connection
+console.log('🔍 Testing Accountant Invoices Connection...');
+
+// Test 1: Check if API is reachable
+console.log('\n1. Testing API Connectivity...');
+fetch('http://127.0.0.1:5002/api/accountant/vendor-invoices')
+  .then(response => {
+    console.log('✅ API reachable - Status:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('📡 Response:', data);
+  })
+  .catch(error => {
+    console.log('❌ Error:', error.message);
+  });
+
+// Test 2: Check authentication flow
+console.log('\n2. Testing Authentication Flow...');
+fetch('http://127.0.0.1:5002/api/accountant/vendor-invoices', {
+  headers: {
+    'Authorization': 'Bearer invalid-token',
+    'Content-Type': 'application/json'
+  }
+})
+  .then(response => {
+    console.log('🔐 Auth test - Status:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('🔐 Auth response:', data);
+  })
+  .catch(error => {
+    console.log('❌ Auth error:', error.message);
+  });
+
+// Test 3: Test login endpoint
+console.log('\n3. Testing Accountant Login...');
+fetch('http://127.0.0.1:5002/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'accountant@test.com',
+    password: 'test123'
+  })
+})
+  .then(response => {
+    console.log('👤 Login test - Status:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('👤 Login response:', data);
+    if (data.success && data.token) {
+      console.log('✅ Got token, testing authenticated request...');
+      return fetch('http://127.0.0.1:5002/api/accountant/vendor-invoices', {
+        headers: {
+          'Authorization': `Bearer ${data.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+  })
+  .then(response => {
+    if (response) {
+      console.log('🎯 Authenticated request - Status:', response.status);
+      return response.json();
+    }
+  })
+  .then(data => {
+    if (data) {
+      console.log('🎯 Authenticated response:', data);
+    }
+  })
+  .catch(error => {
+    console.log('❌ Login error:', error.message);
+  });
+
+console.log('\n📋 Test Summary:');
+console.log('- If API returns 401: Authentication required');
+console.log('- If API returns data: Connection working');  
+console.log('- Check browser console for frontend errors');
+console.log('- Ensure user is logged in as accountant');

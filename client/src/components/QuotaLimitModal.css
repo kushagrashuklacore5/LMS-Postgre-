@@ -1,0 +1,259 @@
+/* Quota Limit Modal Styles */
+
+.quota-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.quota-modal-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header Section */
+.quota-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 2px solid #f0f0f0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.quota-modal-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.quota-modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.quota-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Body Section */
+.quota-modal-body {
+  padding: 24px;
+}
+
+.quota-modal-message {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Quota Usage Info */
+.quota-usage-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border-left: 4px solid #667eea;
+}
+
+.quota-label {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.quota-bar-container {
+  background: #e0e0e0;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.quota-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+  border-radius: 10px 0 0 10px;
+}
+
+.quota-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  color: #333;
+  margin: 0;
+  font-weight: 700;
+}
+
+.quota-current {
+  color: #667eea;
+}
+
+.quota-separator {
+  color: #ccc;
+}
+
+.quota-limit {
+  color: #999;
+}
+
+.quota-resource-type {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 8px 0 0 0;
+  font-weight: 500;
+}
+
+/* Tier Info Section */
+.quota-tier-info {
+  background: #f0f7ff;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #764ba2;
+  margin-bottom: 24px;
+}
+
+.quota-tier-info h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.quota-tier-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Footer Section */
+.quota-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 2px solid #f0f0f0;
+  justify-content: flex-end;
+  background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Button Styles */
+.btn-secondary,
+.btn-primary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .quota-modal-container {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .quota-modal-header {
+    padding: 16px;
+  }
+
+  .quota-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .quota-modal-body {
+    padding: 16px;
+  }
+
+  .quota-modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+  }
+}
