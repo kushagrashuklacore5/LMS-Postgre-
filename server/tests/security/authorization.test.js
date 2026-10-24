@@ -31,7 +31,7 @@ describe('authorization', () => {
       ['platform: all users', '/api/superadmin/users', ['superadmin']],
       ['platform: all schools', '/api/superadmin/universities', ['superadmin']],
       ['platform: demo requests', '/api/demo-requests', ['superadmin']],
-      ['whole-table export', '/api/database-export/tables', ['superadmin']],
+      ['database export (admin: own school only)', '/api/database-export/tables', ['adminA', 'superadmin']],
       ['accountant export', '/api/accountant-export/tables', ['superadmin']],
       ['fee collection (staff)', '/api/accountant/students', ['adminA', 'accountantA']],
       ['fee statistics', '/api/accountant/fees-stats', ['adminA', 'accountantA']],

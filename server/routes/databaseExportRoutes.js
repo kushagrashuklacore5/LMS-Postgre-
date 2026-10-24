@@ -14,6 +14,68 @@ const { rateLimiters } = require('../middleware/rateLimiter');
 const ExcelJS = require('exceljs');
 const db = require('../config/database-switch');
 
+const dbAll = (sql, params = []) => new Promise((resolve, reject) => db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows || []))));
+
+// ---- Which rows a caller may export ----
+// The platform owner (superadmin) exports whole tables. A school admin exports only their own school:
+// tables with a university_id column, filtered to it, plus the child tables below through their parent.
+// Every other table (internal, credentials, other schools' data, platform-wide data) is not offered to admins.
+const NEVER_EXPORTED = new Set(['schema_migrations', 'otp_reset', 'soa_student_setup_tokens', 'soa_idempotency_keys']);
+const VIA_PARENT = {
+  students: ['userid', 'users'],
+  payments: ['studentid', 'users'],
+  payment_orders: ['studentid', 'users'],
+  student_fee_schedules: ['studentid', 'users'],
+  student_classroom_assignment: ['classroomid', 'classrooms'],
+  attendance: ['classroomid', 'classrooms'],
+  results: ['classroomid', 'classrooms'],
+  classroom_subjects: ['classroomid', 'classrooms'],
+  course_students: ['courseid', 'courses'],
+  course_classrooms: ['courseid', 'courses'],
+  certificates: ['courseid', 'courses'],
+  progress: ['courseid', 'courses'],
+  assessments: ['courseid', 'courses'],
+  weeks: ['courseid', 'courses'],
+  chapters: ['courseid', 'courses'],
+  course_materials: ['courseid', 'courses'],
+  live_class_attendance: ['liveclassid', 'live_classes'],
+};
+
+/**
+ * { tables: [names], filter(table) -> { where, params } } for this caller. Table names come from the
+ * database catalogue (never from the request), so they are safe to put into SQL.
+ */
+async function exportScope(req) {
+  const all = (await new Promise((resolve, reject) => db.tables((err, t) => (err ? reject(err) : resolve((t || []).map((x) => x.name))))))
+    .filter((t) => !NEVER_EXPORTED.has(t.toLowerCase()));
+  if (req.user.role === 'superadmin') return { tables: all, filter: () => ({ where: '', params: [] }) };
+
+  // db.tables() names tables as the code spells them (feeStructures); the catalogue is lower-case
+  const school = req.user.universityId;
+  const direct = new Set((await dbAll(
+    "SELECT table_name FROM information_schema.columns WHERE table_schema = current_schema() AND column_name = 'university_id'"
+  )).map((r) => r.table_name.toLowerCase()));
+  const key = (t) => t.toLowerCase();
+  const tables = all.filter((t) => key(t) === 'universities' || direct.has(key(t)) || VIA_PARENT[key(t)]);
+  const filter = (t) => {
+    if (key(t) === 'universities') return { where: 'WHERE id = ?', params: [school] };
+    // the platform owner's account is not part of a school's data
+    if (key(t) === 'users') return { where: "WHERE university_id = ? AND role <> 'superadmin'", params: [school] };
+    if (direct.has(key(t))) return { where: 'WHERE university_id = ?', params: [school] };
+    const [column, parent] = VIA_PARENT[key(t)];
+    const parentWhere = parent === 'users' ? "university_id = ? AND role <> 'superadmin'" : 'university_id = ?';
+    return { where: `WHERE ${column} IN (SELECT id FROM ${parent} WHERE ${parentWhere})`, params: [school] };
+  };
+  return { tables, filter };
+}
+
+/** The scope plus the requested table, or null when this caller may not export that table. */
+async function scopedTable(req, tableName) {
+  const scope = await exportScope(req);
+  const table = scope.tables.find((t) => t.toLowerCase() === String(tableName).toLowerCase());
+  return table ? { table, ...scope.filter(table) } : null;
+}
+
 // Database categories mapping for clean structured exports
 const DB_CATEGORIES = {
   users: {
@@ -122,18 +184,11 @@ function getArabicFieldName(fieldName) {
 // Get all tables in the database
 router.get('/tables', rateLimiters.sensitive, authMiddleware, checkExportAccess, async (req, res) => {
   try {
-    db.tables((err, tables) => {
-      if (err) {
-        console.error('Error fetching tables:', err);
-        return res.status(500).json({ error: 'Error fetching tables' });
-      }
-      
-      const tableNames = (tables || []).map(table => table.name);
-      res.json({ tables: tableNames });
-    });
+    const { tables } = await exportScope(req);
+    res.json({ tables });
   } catch (error) {
-    console.error('Server error fetching tables:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error fetching tables:', error);
+    res.status(500).json({ error: 'Error fetching tables' });
   }
 });
 
@@ -146,8 +201,10 @@ router.get('/table/:tableName/structure', rateLimiters.sensitive, authMiddleware
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
       return res.status(400).json({ error: 'Invalid table name' });
     }
-    
-    db.tableInfo(tableName, (err, columns) => {
+    const scoped = await scopedTable(req, tableName);
+    if (!scoped) return res.status(404).json({ error: 'Table not available for export' });
+
+    db.tableInfo(scoped.table, (err, columns) => {
       if (err) {
         console.error('Error fetching table structure:', err);
         return res.status(500).json({ error: 'Error fetching table structure' });
@@ -173,30 +230,33 @@ router.get('/table/:tableName/structure', rateLimiters.sensitive, authMiddleware
 router.get('/table/:tableName/data', rateLimiters.sensitive, authMiddleware, checkExportAccess, async (req, res) => {
   try {
     const { tableName } = req.params;
-    const { limit = 10000, offset = 0 } = req.query;
-    
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10000, 1), 10000);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+
     // Validate table name to prevent SQL injection
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
       return res.status(400).json({ error: 'Invalid table name' });
     }
-    
+    const scoped = await scopedTable(req, tableName);
+    if (!scoped) return res.status(404).json({ error: 'Table not available for export' });
+
     // Get total count
-    db.get(`SELECT COUNT(*) as total FROM ${tableName}`, (err, countResult) => {
+    db.get(`SELECT COUNT(*) as total FROM ${scoped.table} ${scoped.where}`, scoped.params, (err, countResult) => {
       if (err) {
         return res.status(500).json({ error: 'Error fetching data count' });
       }
-      
+
       // Get data
-      db.all(`SELECT * FROM ${tableName} LIMIT ? OFFSET ?`, [parseInt(limit), parseInt(offset)], (err, rows) => {
+      db.all(`SELECT * FROM ${scoped.table} ${scoped.where} ORDER BY 1 LIMIT ? OFFSET ?`, [...scoped.params, limit, offset], (err, rows) => {
         if (err) {
           return res.status(500).json({ error: 'Error fetching table data' });
         }
-        
+
         res.json({
           data: (rows || []).map(withoutSecretColumns),
           total: countResult.total,
-          limit: parseInt(limit),
-          offset: parseInt(offset)
+          limit,
+          offset
         });
       });
     });
@@ -296,20 +356,17 @@ router.get('/table/:tableName/excel', rateLimiters.sensitive, authMiddleware, ch
     if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName)) {
       return res.status(400).json({ error: 'Invalid table name' });
     }
+    const scoped = await scopedTable(req, tableName);
+    if (!scoped) return res.status(404).json({ error: 'Table not available for export' });
 
-    const rows = await new Promise((resolve, reject) => {
-      db.all(`SELECT * FROM ${tableName}`, (err, data) => {
-        if (err) return reject(err);
-        resolve((data || []).map(withoutSecretColumns));
-      });
-    });
+    const rows = (await dbAll(`SELECT * FROM ${scoped.table} ${scoped.where} ORDER BY 1`, scoped.params)).map(withoutSecretColumns);
 
     let headers = [];
     if (rows.length > 0) {
       headers = Object.keys(rows[0]);
     } else {
       const cols = await new Promise((r) => {
-        db.tableInfo(tableName, (err, c) => r((c || []).map(x => x.name)));
+        db.tableInfo(scoped.table, (err, c) => r((c || []).map(x => x.name).filter(isExportableColumn)));
       });
       headers = cols.length > 0 ? cols : ['id'];
     }
@@ -344,15 +401,11 @@ router.get('/database/excel', rateLimiters.sensitive, authMiddleware, checkExpor
     const categoriesParam = req.query.categories;
     const requestedCategories = categoriesParam ? categoriesParam.split(',').map(c => c.trim()) : null;
 
-    // Fetch all table names from database
-    const allDbTables = await new Promise((resolve, reject) => {
-      db.tables((err, tables) => {
-        if (err) return reject(err);
-        resolve((tables || []).map(t => t.name));
-      });
-    });
+    // The tables this caller may export (the whole database for the platform owner, own school for an admin)
+    const scope = await exportScope(req);
+    const allDbTables = scope.tables;
 
-    // Filter tables based on requested categories
+    // Filter tables based on requested categories (compared case-insensitively: feeStructures / feestructures)
     let targetTables = allDbTables;
     let scopeLabel = 'Full_Database';
 
@@ -360,15 +413,11 @@ router.get('/database/excel', rateLimiters.sensitive, authMiddleware, checkExpor
       const allowedTables = new Set();
       requestedCategories.forEach(catId => {
         if (DB_CATEGORIES[catId]) {
-          DB_CATEGORIES[catId].tables.forEach(t => allowedTables.add(t));
+          DB_CATEGORIES[catId].tables.forEach(t => allowedTables.add(t.toLowerCase()));
         }
       });
-      targetTables = allDbTables.filter(t => allowedTables.has(t));
-      scopeLabel = requestedCategories.join('_');
-    }
-
-    if (targetTables.length === 0) {
-      targetTables = allDbTables;
+      targetTables = allDbTables.filter(t => allowedTables.has(t.toLowerCase()));
+      scopeLabel = requestedCategories.filter((c) => DB_CATEGORIES[c]).join('_') || 'Selection';
     }
 
     const workbook = new ExcelJS.Workbook();
@@ -421,12 +470,8 @@ router.get('/database/excel', rateLimiters.sensitive, authMiddleware, checkExpor
     // Pre-fetch all tables data
     for (let i = 0; i < targetTables.length; i++) {
       const tableName = targetTables[i];
-      const rows = await new Promise((resolve) => {
-        db.all(`SELECT * FROM ${tableName}`, (err, data) => {
-          if (err) return resolve([]);
-          resolve((data || []).map(withoutSecretColumns));
-        });
-      });
+      const { where, params } = scope.filter(tableName);
+      const rows = (await dbAll(`SELECT * FROM ${tableName} ${where} ORDER BY 1`, params)).map(withoutSecretColumns);
 
       const catEntry = Object.values(DB_CATEGORIES).find(c => c.tables.includes(tableName));
       const categoryName = catEntry ? catEntry.name : 'System';
@@ -473,7 +518,7 @@ router.get('/database/excel', rateLimiters.sensitive, authMiddleware, checkExpor
         headers = Object.keys(rows[0]);
       } else {
         const cols = await new Promise((r) => {
-          db.tableInfo(tableName, (err, c) => r((c || []).map(x => x.name)));
+          db.tableInfo(tableName, (err, c) => r((c || []).map(x => x.name).filter(isExportableColumn)));
         });
         headers = cols.length > 0 ? cols : ['id'];
       }
@@ -499,39 +544,20 @@ router.get('/database/excel', rateLimiters.sensitive, authMiddleware, checkExpor
 // Get database statistics
 router.get('/stats', rateLimiters.sensitive, authMiddleware, checkExportAccess, async (req, res) => {
   try {
-    db.tables((err, tables) => {
-      if (err) {
-        return res.status(500).json({ error: 'Error fetching tables' });
-      }
-      
-      const tableNames = (tables || []).map(table => table.name);
-      const stats = {
-        totalTables: tableNames.length,
-        tables: {},
-        exportDate: new Date().toISOString()
-      };
-      
-      if (tableNames.length === 0) {
-        return res.json(stats);
-      }
-      
-      let completedTables = 0;
-      
-      tableNames.forEach(tableName => {
-        db.get(`SELECT COUNT(*) as count FROM ${tableName}`, (err, result) => {
-          completedTables++;
-          
-          if (!err && result) {
-            stats.tables[tableName] = result.count;
-          }
-          
-          if (completedTables === tableNames.length) {
-            res.json(stats);
-          }
-        });
-      });
-    });
+    const scope = await exportScope(req);
+    const stats = {
+      totalTables: scope.tables.length,
+      tables: {},
+      exportDate: new Date().toISOString()
+    };
+    for (const tableName of scope.tables) {
+      const { where, params } = scope.filter(tableName);
+      const [row] = await dbAll(`SELECT COUNT(*) as count FROM ${tableName} ${where}`, params);
+      stats.tables[tableName] = row ? row.count : 0;
+    }
+    res.json(stats);
   } catch (error) {
+    console.error('Error fetching export statistics:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

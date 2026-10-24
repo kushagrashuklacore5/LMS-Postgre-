@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/auth";
 import { useSimpleTranslation } from "../../context/SimpleTranslationContext";
 import { useTranslation } from "../../context/TranslationContext";
+import HintTooltip from "../../components/HintTooltip";
 import AdminLayout from "../../components/AdminLayout";
 import { toast } from "react-toastify";
 import {
@@ -132,8 +133,8 @@ const AdminDashboard = () => {
 
           {/* ================= STATS ================= */}
           <div data-tour="admin-overview-stats" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title={t('total_students')} value={stats.students} icon={<Users className="w-5 h-5" />} link="/admin/users" />
-            <StatCard title={t('total_mentors')} value={stats.mentors} icon={<UserCheck className="w-5 h-5" />} link="/admin/users" />
+            <StatCard title={t('total_students')} value={stats.students} icon={<Users className="w-5 h-5" />} link="/admin/users?role=student" linkHint={t('view_students_hint', 'Open the user list filtered to students')} />
+            <StatCard title={t('total_mentors')} value={stats.mentors} icon={<UserCheck className="w-5 h-5" />} link="/admin/users?role=mentor" linkHint={t('view_mentors_hint', 'Open the user list filtered to mentors')} />
             <StatCard title={t('total_courses')} value={stats.courses} icon={<BookOpen className="w-5 h-5" />} />
             <StatCard title={t('certificates')} value={stats.certificates} icon={<Award className="w-5 h-5" />} />
           </div>
@@ -177,13 +178,17 @@ const AdminDashboard = () => {
 
 /* ================= HELPERS ================= */
 
-const StatCard = ({ title, value, icon, link }) => (
+const StatCard = ({ title, value, icon, link, linkHint }) => (
   <div className="bg-white border border-[#ebdcaa] border-l-4 border-l-[#B99652] rounded-none p-5 shadow-xs hover:shadow-sm transition-all">
     <div className="flex justify-between items-start mb-3">
       <div className="w-10 h-10 bg-[#fffdf4] border border-[#ebdcaa]/80 flex items-center justify-center text-[#B99652] rounded-none">
         {icon}
       </div>
-      {link && <Link to={link} className="text-xs font-bold uppercase tracking-wider text-[#B99652] hover:underline">View →</Link>}
+      {link && (
+        <HintTooltip text={linkHint} placement="left">
+          <Link to={link} className="text-xs font-bold uppercase tracking-wider text-[#B99652] hover:underline">View →</Link>
+        </HintTooltip>
+      )}
     </div>
     <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">{title}</p>
     <p className="text-2xl sm:text-3xl font-bold font-['DM_Serif_Display',serif] text-[#1e1b4b]">{value}</p>

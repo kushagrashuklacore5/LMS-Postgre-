@@ -123,6 +123,10 @@ class PostgresLmsAdapter extends LmsAdapter {
       const studentUserId = students[0].id;
       const classroomId = classrooms[0].id;
       // student_classroom_assignment is what the LMS reads; users.classroom_id is not used.
+      // One classroom per student: a student already in another classroom is not moved by an import
+      // (moving is the admin "Change class" action); the row is reported as needing attention.
+      const elsewhere = await ctx.sql.get('SELECT id FROM student_classroom_assignment WHERE studentId = ? AND classroomId <> ?', [studentUserId, classroomId]);
+      if (elsewhere) throw new LmsAdapterError('This student is already in another classroom.', { code: 'STUDENT_IN_OTHER_CLASSROOM' });
       const existing = await ctx.sql.get('SELECT id FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?', [studentUserId, classroomId]);
       let assignmentId;
       if (existing) {

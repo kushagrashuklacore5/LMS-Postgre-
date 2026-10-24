@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/auth';
 import AdminLayout from '../../components/AdminLayout';
 import { useTranslation } from '../../context/TranslationContext';
 import { toast } from 'react-toastify';
 import ChangeStudentClassModal from '../../components/admin/ChangeStudentClassModal';
+import HintTooltip from '../../components/HintTooltip';
 import {
   Search,
   Filter,
@@ -16,6 +18,8 @@ import {
   ChevronUp
 } from 'lucide-react';
 
+const ROLE_FILTERS = ['all', 'student', 'mentor', 'admin'];
+
 const UserList = () => {
   const { token, API } = useAuth();
   const { t } = useTranslation();
@@ -23,7 +27,19 @@ const UserList = () => {
   const [classChangeStudent, setClassChangeStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [role, setRole] = useState('all');
+  // The role filter lives in the URL (?role=student), so dashboard links and a page refresh keep it
+  const [searchParams, setSearchParams] = useSearchParams();
+  const role = ROLE_FILTERS.includes(searchParams.get('role')) ? searchParams.get('role') : 'all';
+  const setRole = (next) => {
+    setSearchParams((params) => {
+      const updated = new URLSearchParams(params);
+      if (next === 'all') updated.delete('role'); else updated.set('role', next);
+      return updated;
+    }, { replace: true });
+    setPage(1);
+  };
+  // Rows of the selected role, filtered by the server (null while loading)
+  const [roleList, setRoleList] = useState(null);
   const [sortField, setSortField] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
   const [page, setPage] = useState(1);
@@ -37,6 +53,24 @@ const UserList = () => {
       console.warn('⚠️ No token available yet');
     }
   }, [token]);
+
+  useEffect(() => {
+    if (!token || role === 'all') return undefined;
+    let cancelled = false;
+    setRoleList(null);
+    fetch(`${API}/admin/users?role=${encodeURIComponent(role)}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`API Error ${response.status}`);
+        const data = await response.json();
+        if (!cancelled) setRoleList(Array.isArray(data) ? data : []);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setRoleList([]);
+        toast.error(t('failed_to_load_users') + ': ' + error.message);
+      });
+    return () => { cancelled = true; };
+  }, [token, role]);
 
   // Log state changes
   useEffect(() => {
@@ -155,6 +189,7 @@ const UserList = () => {
       }
 
       setUserList(userList.filter(user => user.id !== userId));
+      setRoleList((list) => (list ? list.filter((user) => user.id !== userId) : list));
       toast.success(t('user_deleted_successfully'));
 
     } catch (error) {
@@ -173,10 +208,10 @@ const UserList = () => {
   };
 
   // Filter users
-  const filteredUsers = userList.filter(user => {
+  const filteredUsers = (role === 'all' ? userList : roleList || []).filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
                          user.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = role === 'all' || user.role === role;
+    const matchesRole = role === 'all' || user.role === role || (role === 'mentor' && user.role === 'teacher');
     return matchesSearch && matchesRole;
   });
 
@@ -202,7 +237,7 @@ const UserList = () => {
     mentor: userList.filter(u => u.role === 'mentor').length,
   };
 
-  if (loading) {
+  if (loading || (role !== 'all' && roleList === null)) {
     return (
       <AdminLayout>
         <div className="p-4 md:p-6 bg-[#fffdf4] min-h-[80vh]">
@@ -406,12 +441,14 @@ const UserList = () => {
                       </td>
                       <td className="p-4">
                         {user.role === 'student' && (
+                          <HintTooltip text={t('change_class_tooltip', 'Move this student to another class; it replaces the current one')} placement="left">
                           <button
                             onClick={() => setClassChangeStudent(user)}
                             className="mr-2 px-3 py-1 bg-[#fffdf4] text-[#1e1b4b] border border-[#ebdcaa] hover:bg-[#f7efd2] rounded-none text-xs font-semibold uppercase tracking-wider transition-colors"
                           >
                             {t('change_class')}
                           </button>
+                          </HintTooltip>
                         )}
                         <button
                           onClick={() => removeUser(user.id, user.name)}

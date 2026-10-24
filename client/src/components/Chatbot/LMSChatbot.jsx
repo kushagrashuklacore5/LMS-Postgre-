@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Bell, BookOpen, Clock, GraduationCap, LayoutDashboard, RotateCcw, School, Send, Trophy, UserCheck, Users, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import HintTooltip from '../HintTooltip';
 import { useAuth } from '../../auth/auth';
 import core5RobotPerfect from '../../assets/core5_robot_perfect.png';
 import core5RobotAvatar from '../../assets/core5_robot_avatar.png';
@@ -237,15 +238,17 @@ export default function LMSChatbot({ role = 'student' }) {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <HintTooltip text={t('restart_conversation', 'Restart conversation')}>
             <button
               type="button"
               onClick={resetChat}
-              title={t('restart', 'Restart')}
               aria-label={t('restart_conversation', 'Restart conversation')}
               className="h-8 w-8 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             >
               <RotateCcw size={16} />
             </button>
+            </HintTooltip>
+            <HintTooltip text={t('close_assistant', 'Close assistant')}>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
@@ -254,6 +257,7 @@ export default function LMSChatbot({ role = 'student' }) {
             >
               <X size={18} />
             </button>
+            </HintTooltip>
           </div>
         </div>
 

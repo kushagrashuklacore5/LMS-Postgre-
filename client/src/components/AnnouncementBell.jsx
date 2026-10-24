@@ -6,14 +6,18 @@ import { useNavigate } from "react-router-dom";
 import { notificationTarget } from "../utils/notificationRoutes";
 import ChatbotButton from "./ChatbotButton";
 import { useTranslation } from "react-i18next";
+import HintTooltip from "./HintTooltip";
 
 const AnnouncementBell = () => {
   const { token, API, user } = useAuth();
   const { t } = useTranslation(['forms', 'common']);
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
   const [hasUnread, setHasUnread] = useState(false);
+  // 'loading' until the first answer, then 'ready' or 'error' (the list keeps the last good data)
+  const [loadState, setLoadState] = useState('loading');
 
   const ref = useRef(null);
   const socketRef = useRef(null);
@@ -34,12 +38,14 @@ const AnnouncementBell = () => {
       
       if (!res.ok) {
         console.error(`🔔 Fetch failed: ${res.status} ${res.statusText}`);
+        setLoadState('error');
         return;
       }
 
       const data = await res.json();
       console.log(`🔔 Fetched ${data?.length || 0} announcements:`, data);
-      setAnnouncements(data || []);
+      setAnnouncements(Array.isArray(data) ? data : []);
+      setLoadState('ready');
 
       // 🔴 unread = user not in readBy array (string/number tolerant)
       const unreadExists = data?.some((a) => {
@@ -55,6 +61,7 @@ const AnnouncementBell = () => {
       setHasUnread(unreadExists);
     } catch (err) {
       console.error("🔴 Failed to load announcements:", err);
+      setLoadState('error');
     }
   };
 
@@ -325,14 +332,16 @@ const AnnouncementBell = () => {
     <ChatbotButton />
     <div className="relative" ref={ref}>
       {/* 🔔 BELL ICON (UI UNCHANGED) */}
-      <button onClick={toggleBell} className="relative" aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}>
-        <Bell className="w-5 h-5" />
-        {hasUnread && (
-          <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] leading-4 font-bold rounded-full text-center" data-testid="notification-unread-count">
-            {unreadCount > 9 ? "9+" : unreadCount || ""}
-          </span>
-        )}
-      </button>
+      <HintTooltip text={open ? null : t('notifications_tooltip', 'Notifications and announcements')} placement="bottom">
+        <button onClick={toggleBell} className="relative" aria-expanded={open} aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}>
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] leading-4 font-bold rounded-full text-center" data-testid="notification-unread-count">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
+      </HintTooltip>
 
       {/* 📢 ANNOUNCEMENT DROPDOWN */}
       {open && (
@@ -341,13 +350,21 @@ const AnnouncementBell = () => {
             {t('announcements_title', 'Announcements')}
           </div>
 
-          <div className="max-h-72 overflow-y-auto">
-            {announcements.length === 0 ? (
+          <div className="max-h-72 overflow-y-auto" aria-live="polite">
+            {loadState === 'loading' && announcements.length === 0 ? (
+              <p className="p-3 text-sm text-gray-500">{t('loading_notifications', 'Loading notifications…')}</p>
+            ) : loadState === 'error' && announcements.length === 0 ? (
+              <div className="p-3 text-sm text-rose-700">
+                {t('notifications_load_failed', 'Notifications could not be loaded.')}{' '}
+                <button type="button" className="underline font-semibold" onClick={fetchAnnouncements}>{t('retry', 'Try again')}</button>
+              </div>
+            ) : announcements.length === 0 ? (
               <p className="p-3 text-sm text-gray-500">
                 {t('no_announcements_available', 'No announcements')}
               </p>
             ) : (
               announcements.map((a) => {
+                const target = notificationTarget(a, user?.role);
                 let readBy = [];
                 try {
                   readBy = JSON.parse(a.readBy || '[]');
@@ -358,7 +375,8 @@ const AnnouncementBell = () => {
                 const readByStrings = (Array.isArray(readBy) ? readBy : []).map(String);
                 const isUnread = !readByStrings.includes(String(user?.id));
 
-                const isFeeAlert = a.title?.includes('Fee') || a.content?.toLowerCase()?.includes('fee') || a.content?.toLowerCase()?.includes('due');
+                // The pay link leads to the student fee page, so it is only offered to students
+                const isFeeAlert = user?.role === 'student' && (a.title?.includes('Fee') || a.content?.toLowerCase()?.includes('fee') || a.content?.toLowerCase()?.includes('due'));
 
                 return (
                   <div

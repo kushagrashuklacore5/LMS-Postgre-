@@ -5,6 +5,7 @@ import { useAuth } from '../../auth/auth';
 import { useTranslation } from '../../context/TranslationContext';
 import { Download, Database, FileSpreadsheet, RefreshCw, Eye, AlertCircle, CheckCircle, CheckCircle2, Circle, Users, GraduationCap, X, CheckSquare, Square, Layers, Sparkles } from 'lucide-react';
 import QuotaLimitModal from '../../components/QuotaLimitModal';
+import HintTooltip from '../../components/HintTooltip';
 import { downloadWithSession } from '../../config/download';
 
 const INDIVIDUAL_CATEGORIES = [
@@ -51,6 +52,8 @@ const DatabaseExport = () => {
   const { t } = useTranslation();
   const { token, API } = useAuth();
   const [tables, setTables] = useState([]);
+  // 'loading' | 'ready' | 'error' for the Tables tab
+  const [tablesState, setTablesState] = useState('loading');
   const [selectedTable, setSelectedTable] = useState('');
   const [tableData, setTableData] = useState([]);
   const [tableStructure, setTableStructure] = useState([]);
@@ -89,8 +92,10 @@ const DatabaseExport = () => {
       
       const data = await response.json();
       setTables(data.tables || []);
+      setTablesState('ready');
     } catch (error) {
       console.error('Error fetching tables:', error);
+      setTablesState('error');
       // Don't show toast error for database export to prevent spam
       setExportStatus({ type: 'error', message: 'Failed to fetch tables' });
     }
@@ -138,9 +143,12 @@ const DatabaseExport = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.message || `HTTP ${response.status}`);
       setTableData(data.data || []);
     } catch (error) {
       console.error('Error fetching table data:', error);
+      setTableData([]);
+      setExportStatus({ type: 'error', message: `Could not load ${tableName}: ${error.message}` });
     } finally {
       setLoading(false);
     }
@@ -587,8 +595,17 @@ const DatabaseExport = () => {
             {/* Table Selection */}
             <div className="bg-[#fffdf4] rounded-none border border-[#ebdcaa] p-6 shadow-sm">
               <h2 className="text-lg font-bold font-['DM_Serif_Display',serif] text-[#1e1b4b] mb-4 pb-2 border-b border-[#ebdcaa]">Select Table</h2>
+              {tablesState === 'loading' && <p className="text-sm text-slate-500" role="status">Loading tables…</p>}
+              {tablesState === 'error' && (
+                <p className="text-sm text-rose-700" role="alert">
+                  The table list could not be loaded.{' '}
+                  <button type="button" className="underline font-semibold" onClick={() => { setTablesState('loading'); fetchTables(); }}>Try again</button>
+                </p>
+              )}
+              {tablesState === 'ready' && tables.length === 0 && <p className="text-sm text-slate-500">There are no tables you can export.</p>}
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {tables.map((table) => (
+                  <HintTooltip key={table} text={`Preview ${table} and export it to Excel`} placement="top" className="w-full">
                   <button
                     key={table}
                     onClick={() => handleTableSelect(table)}
@@ -601,6 +618,7 @@ const DatabaseExport = () => {
                     <FileSpreadsheet className="w-4 h-4 text-[#B99652] shrink-0" />
                     <span className="truncate">{table}</span>
                   </button>
+                  </HintTooltip>
                 ))}
               </div>
             </div>
@@ -612,6 +630,7 @@ const DatabaseExport = () => {
                 <div className="bg-[#fffdf4] rounded-none border border-[#ebdcaa] p-6 shadow-sm space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-[#ebdcaa]">
                     <h2 className="text-xl font-bold font-['DM_Serif_Display',serif] text-[#1e1b4b]">Table: {selectedTable}</h2>
+                    <HintTooltip text="Download every row of this table you are allowed to see as an .xlsx file" placement="left">
                     <button
                       onClick={() => downloadTableExcel(selectedTable)}
                       className="flex items-center gap-2 px-4 py-2 bg-[#B99652] hover:bg-[#a38241] text-white rounded-none text-sm font-semibold transition-all shadow-sm"
@@ -619,6 +638,7 @@ const DatabaseExport = () => {
                       <Download size={16} />
                       Export to Excel
                     </button>
+                    </HintTooltip>
                   </div>
 
                   {/* Table Structure */}

@@ -283,7 +283,8 @@ exports.changeStudentClassroom = async (req, res) => {
         await refreshStudentCount(source.id);
       }
 
-      const enrollment = await enrollStudentInClassroom(student.id, target.id);
+      // One classroom per student: the change replaces every other membership in this transaction
+      const enrollment = await enrollStudentInClassroom(student.id, target.id, { replaceExisting: true });
 
       await run("UPDATE students SET grade = ?, rollNumber = ? WHERE userId = ?", [
         target.grade || "",
@@ -298,7 +299,7 @@ exports.changeStudentClassroom = async (req, res) => {
     res.json({
       success: true,
       message:
-        outcome.alreadyEnrolled && !source
+        outcome.alreadyEnrolled && !source && !outcome.replaced.length
           ? "Student is already in this class and section"
           : "Student class updated successfully",
       student,

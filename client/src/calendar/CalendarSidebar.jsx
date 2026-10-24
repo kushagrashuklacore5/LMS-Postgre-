@@ -2,6 +2,7 @@ import { useState } from "react";
 import CreateEventModal from "./CreateEventModal";
 import { Plus, Clock } from "lucide-react";
 import { useTranslation } from "../context/TranslationContext";
+import HintTooltip from "../components/HintTooltip";
 
 const CalendarSidebar = ({ role, onEventCreated }) => {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ const CalendarSidebar = ({ role, onEventCreated }) => {
       <div>
         {(role === "admin" || role === "mentor") && (
           <>
+            <HintTooltip text={t('dashboard:cal_create_tooltip', 'Add an event and choose who sees it')} placement="bottom" className="w-full">
             <button
               data-tour="calendar-create-event"
               onClick={() => {
@@ -24,6 +26,7 @@ const CalendarSidebar = ({ role, onEventCreated }) => {
               <Plus size={16} />
               <span>{t('dashboard:cal_create_event')}</span>
             </button>
+            </HintTooltip>
 
             {message && (
               <div className="mb-4 p-2.5 bg-green-100/80 border border-green-200 text-green-800 text-xs rounded-lg font-medium animate-fade-in">

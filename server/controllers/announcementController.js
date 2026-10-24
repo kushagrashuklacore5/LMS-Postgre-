@@ -1,7 +1,7 @@
 const BilingualDataService = require("../services/BilingualDataService");
 const { generateText, NOTIFICATION_TYPES } = require("../services/notificationText");
 const { HttpError, authorizeClassroom, authorizeCourse, listClassrooms } = require("../helpers/teachingScope");
-const { run } = require("../helpers/dbAsync");
+const { run, get: dbGet } = require("../helpers/dbAsync");
 
 function getDb(req) {
   return req?.tenant?.database || require("../config/database-switch");
@@ -157,6 +157,24 @@ const getAllAnnouncements = async (req, res) => {
     const userId = req.user.userId;
     const universityId = req.user?.universityId || req.user?.university_id;
 
+    // The platform owner belongs to no school: only notifications addressed to this account
+    if (role === "superadmin") {
+      return getDb(req).all(
+        `SELECT a.*, u.name as createdByUserName
+         FROM announcements a LEFT JOIN users u ON a.createdByUser = u.id
+         WHERE a.recipientUserId = ?
+         ORDER BY a.createdAt DESC, a.id DESC`,
+        [userId],
+        (err, rows) => {
+          if (err) {
+            console.error("Error fetching announcements:", err);
+            return res.status(500).json({ message: "Database error" });
+          }
+          res.json((rows || []).map((a) => ({ ...a, readBy: a.readBy || '[]' })));
+        }
+      );
+    }
+
     let query = `
       SELECT a.*, u.name as createdByUserName
       FROM announcements a
@@ -297,58 +315,44 @@ const markAsRead = async (req, res) => {
       return res.status(200).json({ message: "OK - no userId to mark read" });
     }
 
-    // Get current announcement
-    getDb(req).get("SELECT * FROM announcements WHERE id = ?", [id], (err, announcement) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error" });
-      }
-
-      if (!announcement) {
-        return res.status(404).json({ message: "Announcement not found" });
-      }
+    // Only an announcement of the caller's own school, or a notification addressed to the caller
+    // (the platform owner has no school, so only the latter). Anything else is "not found".
+    const universityId = req.user?.universityId ?? null;
+    const userIdStr = String(userId);
+    // Compare-and-set: two people marking the same announcement at once must not lose each other's mark
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const announcement = await dbGet(
+        "SELECT id, readBy, recipientUserId FROM announcements WHERE id = ? AND (university_id = ? OR recipientUserId = ?)",
+        [id, universityId, userId]
+      );
+      if (!announcement) return res.status(404).json({ message: "Announcement not found" });
 
       // A targeted notification can only be marked read by its recipient
-      if (announcement.recipientUserId && String(announcement.recipientUserId) !== String(userId)) {
+      if (announcement.recipientUserId && String(announcement.recipientUserId) !== userIdStr) {
         return res.status(404).json({ message: "Announcement not found" });
       }
 
-      // Parse existing readBy array
       let readBy = [];
       try {
         readBy = JSON.parse(announcement.readBy || '[]');
       } catch (e) {
-        console.error("Error parsing readBy:", e);
         readBy = [];
       }
+      readBy = (Array.isArray(readBy) ? readBy : []).map(String);
+      if (readBy.includes(userIdStr)) return res.json({ message: "Announcement marked as read" });
+      readBy.push(userIdStr);
 
-      // Ensure all items are strings for comparison
-      readBy = readBy.map(String);
-      const userIdStr = String(userId);
-
-      // Add user to readBy if not already there
-      if (!readBy.includes(userIdStr)) {
-        readBy.push(userIdStr);
-        console.log(`  ✅ Added user ${userIdStr} to readBy`);
-      } else {
-        console.log(`  ℹ️ User ${userIdStr} already in readBy`);
-      }
-
-      // Update announcement
-      getDb(req).run(
-        "UPDATE announcements SET readBy = ? WHERE id = ?",
-        [JSON.stringify(readBy), id],
-        function(err) {
-          if (err) {
-            console.error("Error updating announcement:", err);
-            return res.status(500).json({ message: "Error updating announcement" });
-          }
-
-          console.log(`✅ Marked announcement ${id} as read for user ${userIdStr}`);
-          res.json({ message: "Announcement marked as read" });
-        }
+      const previous = announcement.readBy;
+      const { changes } = await run(
+        previous == null
+          ? "UPDATE announcements SET readBy = ? WHERE id = ? AND readBy IS NULL"
+          : "UPDATE announcements SET readBy = ? WHERE id = ? AND readBy = ?",
+        previous == null ? [JSON.stringify(readBy), id] : [JSON.stringify(readBy), id, previous]
       );
-    });
+      if (changes) return res.json({ message: "Announcement marked as read" });
+      // someone else changed readBy in between: read it again
+    }
+    res.status(409).json({ message: "Please try again" });
   } catch (error) {
     console.error("MARK AS READ ERROR:", error);
     res.status(500).json({ message: "Server error", error: error.message });

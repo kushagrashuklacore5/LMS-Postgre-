@@ -54,6 +54,8 @@ const AdminLayout = ({ children }) => {
     { path: "/admin/dashboard", nameKey: 'nav_dashboard', name: 'Dashboard', icon: <LayoutDashboard size={20} />, tourId: 'nav-dashboard' },
     { path: "/admin/users", nameKey: 'nav_users', name: 'Users', icon: <Users size={20} />, tourId: 'nav-users' },
     { path: "/admin/courses", nameKey: 'nav_courses', name: 'Courses', icon: <BookOpen size={20} />, tourId: 'nav-courses' },
+    // Export is limited to the admin's own school on the server (databaseExportRoutes.js exportScope)
+    { path: "/admin/database-export", nameKey: 'nav_database_export', name: 'Database Export', icon: <Database size={20} />, tourId: 'nav-database-export' },
     { path: "/admin/fee-structure", nameKey: 'nav_fee_structure', name: 'Fee Structure', icon: <BarChart3 size={20} />, tourId: 'nav-fee-structure' },
     { path: "/admin/calendar", nameKey: 'nav_calendar', name: 'Calendar', icon: <Calendar size={20} />, tourId: 'nav-calendar' },
 

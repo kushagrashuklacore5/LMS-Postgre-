@@ -72,8 +72,9 @@ const ACCESS_POLICY = [
   /* ---------- School administration ---------- */
   rule("/admin", [ADMIN]),
   rule("/onboarding", [ADMIN]),
-  // Whole-table export is not limited to one school yet, so it is closed to school roles.
-  rule("/database-export", [SUPERADMIN]),
+  // The platform owner exports whole tables; an admin only their own school's rows
+  // (routes/databaseExportRoutes.js: exportScope).
+  rule("/database-export", [SUPERADMIN, ADMIN]),
   rule("/database-translations", [ADMIN, SUPERADMIN]),
   rule("/bilingual", [ADMIN, SUPERADMIN]),
   rule("/users", SCHOOL_STAFF, { methods: READ }),
@@ -106,6 +107,9 @@ const ACCESS_POLICY = [
   rule("/calendar", SCHOOL_MEMBERS, { methods: READ }),
   rule("/calendar", TEACHING_STAFF),
   rule("/calendar_events", SCHOOL_MEMBERS, { methods: READ }),
+  // The platform owner has a notification bell too: it lists and marks read only notifications
+  // addressed to that account (controllers/announcementController.js), never a school's announcements.
+  rule("/announcements", [...SCHOOL_MEMBERS, SUPERADMIN], { methods: [...READ, "PUT"] }),
   rule("/announcements", SCHOOL_MEMBERS),
 
   /* ---------- Language preferences and content translation ---------- */

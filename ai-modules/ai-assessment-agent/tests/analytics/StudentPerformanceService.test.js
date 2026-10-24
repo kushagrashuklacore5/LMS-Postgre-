@@ -156,7 +156,8 @@ describe('retakes, class average, sufficiency', () => {
 
   it('class average aggregates all finished current attempts of that test', async () => {
     const a = await published(t1, { classroomId: IDS.class10 });
-    await db.exec(`INSERT INTO student_classroom_assignment (studentId, classroomId, createdAt) VALUES (${IDS.student2}, ${IDS.class10}, '2026-10-01 00:00:00')`);
+    // student2 moves into class 10 (a student belongs to one classroom at a time)
+    await db.exec(`UPDATE student_classroom_assignment SET classroomId = ${IDS.class10}, createdAt = '2026-10-01 00:00:00' WHERE studentId = ${IDS.student2}`);
     await take(st1, a, [1, 1, 1, 1]); // 100
     await take(st2, a, [1, 0, 0, 0]); // 25
     const h = (await perf.getPerformance(t1, IDS.student1)).metrics.history[0];

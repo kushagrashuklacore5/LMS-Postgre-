@@ -1,5 +1,7 @@
 const db = require('../config/database-switch');
 const { get } = require('../helpers/dbAsync');
+const dbGet = get;
+const { enrollStudentInClassroom, studentsWithAClassroom, ClassroomConflictError } = require('../helpers/classroomEnrollment');
 const { HttpError, CLASSROOM_ACCESS_SQL, getTeachingScope } = require('../helpers/teachingScope');
 const { teacherRunsClassroom } = require('../helpers/schoolScope');
 
@@ -312,6 +314,16 @@ const createClassroom = async (req, res) => {
       return res.status(409).json({
         message: `${duplicate.name} already exists`,
         classroom: duplicate,
+      });
+    }
+
+    // One classroom per student: checked before the classroom is created, so nothing is half-done
+    const alreadyPlaced = await studentsWithAClassroom(Array.isArray(studentIds) ? studentIds : []);
+    if (alreadyPlaced.length) {
+      return res.status(409).json({
+        message: `${alreadyPlaced.length} selected student(s) are already in a classroom. Use "Change class" to move them, or leave them out.`,
+        code: 'STUDENT_IN_OTHER_CLASSROOM',
+        students: alreadyPlaced.map((p) => ({ studentId: p.studentId, classroom: { id: p.id, name: p.name } })),
       });
     }
 
@@ -810,15 +822,14 @@ const getClassroomAnalytics = async (req, res) => {
 };
 
 /* ================= ASSIGN STUDENT TO CLASSROOM ================= */
+// One classroom per student: a student who is already in another classroom is refused (409);
+// moving a student is the admin "Change class" action (adminController.changeStudentClassroom).
 const assignStudentToClassroom = async (req, res) => {
   try {
     const { classroomId, studentId } = req.body;
     const universityId = req.user?.universityId;
 
-    console.log('assignStudentToClassroom called with:', { classroomId, studentId, universityId });
-
     if (!classroomId || !studentId) {
-      console.error('Missing required fields:', { classroomId, studentId });
       return res.status(400).json({ message: 'Classroom ID and Student ID are required' });
     }
 
@@ -827,90 +838,37 @@ const assignStudentToClassroom = async (req, res) => {
       return res.status(403).json({ message: 'Only the class teacher or an admin adds students to this class' });
     }
 
-    // First verify classroom belongs to this university
-    db.get(
-      `SELECT * FROM classrooms WHERE id = ? AND university_id = ?`,
-      [classroomId, universityId],
-      (err, classroom) => {
-        if (err) {
-          console.error("Database error checking classroom:", err);
-          return res.status(500).json({ message: 'Database error' });
-        }
+    const classroom = await dbGet('SELECT id FROM classrooms WHERE id = ? AND university_id = ?', [classroomId, universityId]);
+    if (!classroom) {
+      return res.status(403).json({ message: 'Classroom not found or does not belong to your university' });
+    }
+    const student = await dbGet("SELECT id FROM users WHERE id = ? AND role = 'student' AND university_id = ?", [studentId, universityId]);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
 
-        if (!classroom) {
-          return res.status(403).json({ message: 'Classroom not found or does not belong to your university' });
-        }
-
-        // Check if assignment already exists
-        db.get(
-          `SELECT * FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?`,
-          [studentId, classroomId],
-          (err, existing) => {
-            if (err) {
-              console.error("Database error checking existing assignment:", err);
-              return res.status(500).json({ message: 'Database error' });
-            }
-
-            if (existing) {
-              return res.status(400).json({ message: 'Student already assigned to this classroom' });
-            }
-
-            // Create the assignment
-            db.run(
-              `INSERT INTO student_classroom_assignment (studentId, classroomId) VALUES (?, ?)`,
-              [studentId, classroomId],
-              function(err) {
-                if (err) {
-                  console.error("Database error creating assignment:", err);
-                  return res.status(500).json({ message: 'Failed to assign student to classroom', error: err.message });
-                }
-                db.get(
-                  `SELECT COUNT(*) as count FROM student_classroom_assignment WHERE classroomId = ?`,
-                  [classroomId],
-                  (countErr, row) => {
-                    if (countErr) {
-                      console.error('Error counting classroom students:', countErr);
-                      // Assignment succeeded; return success anyway
-                      return res.json({
-                        message: 'Student assigned to classroom successfully',
-                        studentId,
-                        classroomId
-                      });
-                    }
-
-                    const newCount = row?.count || 0;
-                    db.run(
-                      `UPDATE classrooms SET studentCount = ? WHERE id = ?`,
-                      [newCount, classroomId],
-                      (updateErr) => {
-                        if (updateErr) {
-                          console.error('Error updating classrooms.studentCount:', updateErr);
-                        }
-
-                        // Auto-assign student to all courses belonging to this classroom
-                        require('../helpers/courseClasses').enrollStudentInClassCourses(studentId, classroomId)
-                          .catch((cErr) => console.warn('Could not auto-assign course_students:', cErr.message));
-
-                        console.log(`Successfully assigned student ${studentId} to classroom ${classroomId}. New studentCount=${newCount}`);
-                        res.json({
-                          message: 'Student assigned to classroom successfully',
-                          studentId,
-                          classroomId,
-                          studentCount: newCount
-                        });
-                      }
-                    );
-                  }
-                );
-              }
-            );
-          }
-        );
+    let enrollment;
+    try {
+      enrollment = await enrollStudentInClassroom(student.id, classroom.id);
+    } catch (err) {
+      if (err instanceof ClassroomConflictError) {
+        return res.status(409).json({ message: err.message, code: err.code, currentClassroom: err.currentClassroom });
       }
-    );
+      throw err;
+    }
+    if (enrollment.alreadyEnrolled) {
+      return res.status(400).json({ message: 'Student already assigned to this classroom' });
+    }
+
+    res.json({
+      message: 'Student assigned to classroom successfully',
+      studentId,
+      classroomId,
+      studentCount: enrollment.studentCount
+    });
   } catch (error) {
     console.error('Error in assignStudentToClassroom:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

@@ -117,7 +117,10 @@ describe('portal workflows', () => {
     });
 
     it('a student sees who is in the class, without classmates\' email addresses', async () => {
-      await ctx.db.run('INSERT INTO student_classroom_assignment (studentId, classroomId) VALUES (?, ?)', [ids.users.studentA2, ids.classroomA]);
+      // A classmate with no other classroom (a student belongs to one classroom at a time)
+      const CLASSMATE = 35;
+      await ctx.db.run("INSERT INTO users (id, name, email, password, role, university_id, isApproved) VALUES (?, 'Classmate A', 'classmate.a@test.invalid', 'x', 'student', ?, 1)", [CLASSMATE, ids.schoolA]);
+      await ctx.db.run('INSERT INTO student_classroom_assignment (studentId, classroomId) VALUES (?, ?)', [CLASSMATE, ids.classroomA]);
       const asStudent = await ctx.api('GET', `/api/classrooms/${ids.classroomA}/students`, { as: 'studentA' });
       assert.equal(asStudent.status, 200);
       assert.equal(asStudent.body.length, 2);
@@ -126,7 +129,8 @@ describe('portal workflows', () => {
 
       const asTeacher = await ctx.api('GET', `/api/classrooms/${ids.classroomA}/students`, { as: 'mentorA' });
       assert.ok(asTeacher.body.every((s) => s.email), 'the teacher still gets contact details');
-      await ctx.db.run('DELETE FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?', [ids.users.studentA2, ids.classroomA]);
+      await ctx.db.run('DELETE FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?', [CLASSMATE, ids.classroomA]);
+      await ctx.db.run('DELETE FROM users WHERE id = ?', [CLASSMATE]);
     });
 
     it('a chapter\'s file is offered through a signed link that opens', async () => {

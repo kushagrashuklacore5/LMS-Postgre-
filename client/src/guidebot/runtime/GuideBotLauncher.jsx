@@ -2,6 +2,7 @@ import React from 'react';
 import { Compass } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import guideBotRuntime from './GuideBotRuntime';
+import HintTooltip from '../../components/HintTooltip';
 
 /**
  * Accessible button that starts the given portal's registered GuideBot
@@ -22,6 +23,7 @@ const GuideBotLauncher = ({ tourId }) => {
   };
 
   return (
+    <HintTooltip text={t('guidebot_tooltip', 'Take a step-by-step tour of this portal')}>
     <button
       type="button"
       onClick={handleClick}
@@ -31,6 +33,7 @@ const GuideBotLauncher = ({ tourId }) => {
       <Compass size={15} strokeWidth={2.2} className="shrink-0" />
       <span>{t('guidebot_btn', 'GuideBot')}</span>
     </button>
+    </HintTooltip>
   );
 };
 

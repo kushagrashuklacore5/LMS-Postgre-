@@ -1,4 +1,4 @@
-const { get, all, run } = require('./dbAsync');
+const { get, all, run, withTransaction } = require('./dbAsync');
 
 const sameText = (a, b) =>
   String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
@@ -83,29 +83,73 @@ const refreshStudentCount = async (classroomId) => {
   return count;
 };
 
-/* ================= ENROLL STUDENT (IDEMPOTENT) ================= */
-// Safe to call when the student is already a member: no duplicate row is created.
-const enrollStudentInClassroom = async (studentId, classroomId) => {
-  const existing = await get(
-    'SELECT id FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?',
+/* ================= ONE CLASSROOM PER STUDENT ================= */
+// A student belongs to at most one classroom at a time (also enforced by a unique index,
+// migration 003). Refusing a second classroom is an ordinary, explainable answer (409).
+class ClassroomConflictError extends Error {
+  constructor(current) {
+    const label = current?.name || [current?.grade, current?.section].filter(Boolean).join(' - ');
+    super(`Student is already in ${label || 'another classroom'}. Use "Change class" to move them.`);
+    this.status = 409;
+    this.code = 'STUDENT_IN_OTHER_CLASSROOM';
+    this.currentClassroom = current || null;
+  }
+}
+
+/** The student's other classroom memberships (normally none or one). */
+const otherMemberships = (studentId, classroomId) =>
+  all(
+    `SELECT c.id, c.name, c.grade, c.section
+     FROM student_classroom_assignment sca JOIN classrooms c ON c.id = sca.classroomId
+     WHERE sca.studentId = ? AND sca.classroomId <> ?`,
     [studentId, classroomId]
   );
 
-  if (!existing) {
-    await run(
-      'INSERT INTO student_classroom_assignment (studentId, classroomId) VALUES (?, ?)',
+/* ================= ENROLL STUDENT (IDEMPOTENT) ================= */
+// Safe to call when the student is already a member: no duplicate row is created.
+// A student in another classroom is refused (ClassroomConflictError) unless replaceExisting is set,
+// which is the "change class" operation: the old membership is replaced in the same transaction.
+// All of it runs under the serialised write lock, so two concurrent requests cannot both add a class.
+const enrollStudentInClassroom = (studentId, classroomId, { replaceExisting = false } = {}) =>
+  withTransaction(async () => {
+    const others = await otherMemberships(studentId, classroomId);
+    if (others.length && !replaceExisting) throw new ClassroomConflictError(others[0]);
+    if (others.length) {
+      await run('DELETE FROM student_classroom_assignment WHERE studentId = ? AND classroomId <> ?', [studentId, classroomId]);
+      for (const other of others) await refreshStudentCount(other.id);
+    }
+
+    const existing = await get(
+      'SELECT id FROM student_classroom_assignment WHERE studentId = ? AND classroomId = ?',
       [studentId, classroomId]
     );
-  }
+    if (!existing) {
+      await run(
+        'INSERT INTO student_classroom_assignment (studentId, classroomId) VALUES (?, ?)',
+        [studentId, classroomId]
+      );
+    }
 
-  const studentCount = await refreshStudentCount(classroomId);
+    const studentCount = await refreshStudentCount(classroomId);
 
-  // Same follow-up as the existing "assign student" flow: give the student the
-  // courses that belong to this classroom.
-  // (required here, not at the top: courseClasses -> teachingScope -> dbAsync is a longer chain)
-  await require('./courseClasses').enrollStudentInClassCourses(studentId, classroomId);
+    // Same follow-up as the existing "assign student" flow: give the student the
+    // courses that belong to this classroom.
+    // (required here, not at the top: courseClasses -> teachingScope -> dbAsync is a longer chain)
+    await require('./courseClasses').enrollStudentInClassCourses(studentId, classroomId);
 
-  return { alreadyEnrolled: !!existing, studentCount };
+    return { alreadyEnrolled: !!existing, studentCount, replaced: others };
+  });
+
+/** Of these students, the ones already in some classroom: [{ studentId, id, name, grade, section }]. */
+const studentsWithAClassroom = async (studentIds) => {
+  const ids = [...new Set((studentIds || []).map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (!ids.length) return [];
+  return all(
+    `SELECT sca.studentId, c.id, c.name, c.grade, c.section
+     FROM student_classroom_assignment sca JOIN classrooms c ON c.id = sca.classroomId
+     WHERE sca.studentId IN (${ids.map(() => '?').join(', ')})`,
+    ids
+  );
 };
 
 // Marks and attendance may only be recorded for a student who is in that classroom.
@@ -122,4 +166,6 @@ module.exports = {
   resolveClassroomSelection,
   refreshStudentCount,
   enrollStudentInClassroom,
+  studentsWithAClassroom,
+  ClassroomConflictError,
 };

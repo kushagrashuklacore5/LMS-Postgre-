@@ -7,18 +7,33 @@ const SCHOOL_ROLES = ['student', 'mentor', 'teacher', 'admin', 'accountant', 'st
 
 
 /* ================= GET ALL USERS (ADMIN ONLY) ================= */
+// ?role= narrows the list on the server. Older accounts carry the role name "teacher" for a mentor.
+const ROLE_FILTERS = {
+  student: ['student'],
+  mentor: ['mentor', 'teacher'],
+  admin: ['admin'],
+  accountant: ['accountant'],
+  storekeeper: ['storekeeper'],
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const adminUniversityId = req.user?.universityId;
+    const requestedRole = req.query.role ? String(req.query.role).toLowerCase() : 'all';
+    if (requestedRole !== 'all' && !ROLE_FILTERS[requestedRole]) {
+      return res.status(400).json({ message: 'Unknown role filter' });
+    }
+    const roles = requestedRole === 'all' ? null : ROLE_FILTERS[requestedRole];
     db.all(`
       SELECT u.id, u.name, u.email, u.role, u.isApproved, u.created_at as createdAt,
              CASE WHEN u.role = 'student' THEN s.studentId ELSE NULL END as studentId,
              CASE WHEN u.role = 'student' THEN s.grade ELSE NULL END as grade
-      FROM users u 
-      LEFT JOIN students s ON u.id = s.userId 
-      WHERE u.university_id = ?
+      FROM users u
+      LEFT JOIN students s ON u.id = s.userId
+      WHERE u.university_id = ? AND u.role <> 'superadmin'
+      ${roles ? `AND u.role IN (${roles.map(() => '?').join(', ')})` : ''}
       ORDER BY u.created_at DESC
-    `, [adminUniversityId], (err, users) => {
+    `, [adminUniversityId, ...(roles || [])], (err, users) => {
       if (err) {
         console.error("Database error:", err);
         return res.status(500).json({ message: 'Database error' });
