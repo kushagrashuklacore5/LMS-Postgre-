@@ -22,7 +22,7 @@
  * Never throws: a missing or unsupported setting yields configured: false plus a
  * reason code. The credential is kept off enumerable properties.
  */
-const SUPPORTED_PROVIDERS = Object.freeze(['gemini', 'huggingface']);
+const SUPPORTED_PROVIDERS = Object.freeze(['gemini', 'huggingface', 'groq']);
 const DEFAULT_TIMEOUT_MS = 60000;
 const HF_TOKEN_FORMAT = /^hf_[A-Za-z0-9]{20,}$/;
 
@@ -35,9 +35,13 @@ function loadGenerationConfig(env = process.env) {
   const enabled = readText(env, 'AIA_AI_GENERATION_ENABLED') !== 'false';
   const override = readText(env, 'AIA_LLM_PROVIDER');
   const provider = (override || readText(env, 'SOA_LLM_PROVIDER') || '').toLowerCase() || null;
-  const model = override ? readText(env, 'AIA_LLM_MODEL') : readText(env, 'SOA_LLM_MODEL');
+  let model = override ? readText(env, 'AIA_LLM_MODEL') : readText(env, 'SOA_LLM_MODEL');
+  if (!model && provider === 'groq') model = 'openai/gpt-oss-120b';
   const source = override ? 'AIA_LLM_*' : 'SOA_LLM_*';
-  const apiKey = provider === 'huggingface' ? readText(env, 'HF_TOKEN') : readText(env, 'SOA_GEMINI_API_KEY');
+  let apiKey = null;
+  if (provider === 'groq') apiKey = readText(env, 'GROQ_API_KEY') || readText(env, 'SOA_GROQ_API_KEY');
+  else if (provider === 'huggingface') apiKey = readText(env, 'HF_TOKEN');
+  else apiKey = readText(env, 'SOA_GEMINI_API_KEY');
   const rawTimeout = Number(readText(env, 'AIA_LLM_TIMEOUT_MS'));
   const timeoutMs = Number.isFinite(rawTimeout) && rawTimeout >= 5000 && rawTimeout <= 120000 ? Math.floor(rawTimeout) : DEFAULT_TIMEOUT_MS;
 

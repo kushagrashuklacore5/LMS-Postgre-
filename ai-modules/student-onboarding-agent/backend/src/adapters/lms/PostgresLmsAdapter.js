@@ -111,14 +111,52 @@ class PostgresLmsAdapter extends LmsAdapter {
       if (students.length === 0) throw new LmsAdapterError('No student with this email exists in this school.', { code: 'STUDENT_NOT_FOUND' });
       if (students.length > 1) throw new LmsAdapterError('More than one student matches this email (differing only in case).', { code: 'STUDENT_AMBIGUOUS' });
 
-      // Classroom by tenant + grade + section, ignoring case and surrounding spaces. Never by ID.
-      const classrooms = await ctx.sql.all(
-        "SELECT id FROM classrooms WHERE university_id = ? AND lower(trim(grade)) = lower(trim(?)) AND lower(trim(coalesce(section, ''))) = lower(trim(?))",
+      // Smart Classroom Matching
+      // 1. Try exact match by tenant + grade + section
+      let classrooms = await ctx.sql.all(
+        "SELECT id, name, grade, section FROM classrooms WHERE university_id = ? AND lower(trim(grade)) = lower(trim(?)) AND lower(trim(coalesce(section, ''))) = lower(trim(?))",
         [ctx.actor.universityId, className, section]
       );
+
+      // 2. Try normalized grade & section (e.g. "Grade 4" / "4th" -> "4", "Section A" -> "A")
+      const cleanGrade = String(className || "")
+        .replace(/^(grade|class|standard|std)\s*/i, "")
+        .replace(/(st|nd|rd|th)$/i, "")
+        .trim();
+      const cleanSection = String(section || "")
+        .replace(/^(section|sec|div|division)\s*/i, "")
+        .trim();
+
+      if (classrooms.length === 0 && (cleanGrade || cleanSection)) {
+        classrooms = await ctx.sql.all(
+          "SELECT id, name, grade, section FROM classrooms WHERE university_id = ? AND (lower(trim(grade)) = lower(trim(?)) OR lower(trim(grade)) = lower(trim(?))) AND (lower(trim(coalesce(section, ''))) = lower(trim(?)) OR lower(trim(coalesce(section, ''))) = lower(trim(?)))",
+          [ctx.actor.universityId, cleanGrade, className, cleanSection, section]
+        );
+      }
+
+      // 3. Try matching classroom by name directly
+      if (classrooms.length === 0 && className) {
+        classrooms = await ctx.sql.all(
+          "SELECT id, name, grade, section FROM classrooms WHERE university_id = ? AND (lower(trim(name)) = lower(trim(?)) OR lower(trim(name)) = lower(trim(?)))",
+          [ctx.actor.universityId, className, `${className} - ${section || ""}`.trim()]
+        );
+      }
+
+      // 4. Auto-create classroom if requested and no match exists
+      if (classrooms.length === 0 && (className || cleanGrade)) {
+        const gradeVal = cleanGrade || className;
+        const secVal = (cleanSection || section || "A").toUpperCase();
+        const displayName = `Grade ${gradeVal} - ${secVal}`;
+        const created = await ctx.sql.run(
+          "INSERT INTO classrooms (name, grade, section, university_id, studentCount, createdAt) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)",
+          [displayName, gradeVal, secVal, ctx.actor.universityId]
+        );
+        classrooms = [{ id: created.lastID, name: displayName, grade: gradeVal, section: secVal }];
+      }
+
       // Not recorded as idempotent: a retry after the school fixes its classrooms is evaluated afresh.
-      if (classrooms.length === 0) return { outcome: 'classroom_not_found', assignmentRef: null, replayed: false };
-      if (classrooms.length > 1) return { outcome: 'classroom_ambiguous', assignmentRef: null, replayed: false };
+      if (classrooms.length === 0) return { outcome: "classroom_not_found", assignmentRef: null, replayed: false };
+      if (classrooms.length > 1) return { outcome: "classroom_ambiguous", assignmentRef: null, replayed: false };
 
       const studentUserId = students[0].id;
       const classroomId = classrooms[0].id;
@@ -141,6 +179,7 @@ class PostgresLmsAdapter extends LmsAdapter {
         if (Number(bumped.changes) !== 1) {
           throw new LmsAdapterError('The LMS could not complete the request.', { code: 'LMS_UNAVAILABLE' });
         }
+        await ctx.sql.run('UPDATE users SET classroom_id = ? WHERE id = ?', [classroomId, studentUserId]);
       }
 
       const result = { assignmentRef: `lms-assignment:${assignmentId}` };

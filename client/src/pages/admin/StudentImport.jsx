@@ -6,7 +6,10 @@ import {
   CheckCircle,
   CircleAlert,
   Download,
+  Eye,
+  EyeOff,
   FileSpreadsheet,
+  KeyRound,
   Loader2,
   Play,
   PlusCircle,
@@ -573,6 +576,24 @@ const StudentImport = () => {
       return null;
     } catch (err) {
       return safeError(err).message;
+    }
+  };
+
+  const setBulkStudentPasswords = async (password, rows) => {
+    try {
+      const res = await axios.post(`${base}/imports/${review.jobId}/passwords/bulk`, { password, rows }, { headers: auth });
+      return res.data;
+    } catch (err) {
+      throw safeError(err);
+    }
+  };
+
+  const getImportCredentials = async () => {
+    try {
+      const res = await axios.get(`${base}/imports/${review.jobId}/credentials`, { headers: auth });
+      return res.data.credentials || [];
+    } catch {
+      return [];
     }
   };
 
@@ -1202,7 +1223,16 @@ const StudentImport = () => {
               )}
 
               {/* ================= RESULTS ================= */}
-              {result && <Results result={result} onVerify={setVerification} onSetPassword={setStudentPassword} busy={!!busy} />}
+              {result && (
+                <Results
+                  result={result}
+                  onVerify={setVerification}
+                  onSetPassword={setStudentPassword}
+                  onSetBulkPassword={setBulkStudentPasswords}
+                  onGetCredentials={getImportCredentials}
+                  busy={!!busy}
+                />
+              )}
             </div>
           )}
 
@@ -1647,10 +1677,91 @@ const IssueGroup = ({ title, icon, issues, tone }) => {
   );
 };
 
-const Results = ({ result, onVerify, onSetPassword, busy }) => {
+const Results = ({ result, onVerify, onSetPassword, onSetBulkPassword, onGetCredentials, busy }) => {
   const t = result.totals || {};
   const [pwRow, setPwRow] = useState(null); // row number with the open password form
   const [pwDone, setPwDone] = useState(() => new Set());
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [lastBulkPassword, setLastBulkPassword] = useState("Student@123");
+  const [creds, setCreds] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    if (onGetCredentials) {
+      onGetCredentials().then((c) => {
+        if (active && Array.isArray(c)) setCreds(c);
+      });
+    }
+    return () => { active = false; };
+  }, [onGetCredentials, result.jobId]);
+
+  const credMap = useMemo(() => new Map((creds || []).map((c) => [c.rowNumber, c])), [creds]);
+
+  const createdRows = (result.rows || []).filter((r) => ["created", "already_created"].includes(r.student?.status));
+
+  const downloadCredentialsCsv = async (overridePassword = null, overrideDoneRows = null) => {
+    setDownloadingCsv(true);
+    try {
+      const latestCreds = onGetCredentials ? await onGetCredentials() : creds;
+      const rows = result.rows || [];
+      const currentCredMap = new Map((latestCreds || []).map((c) => [c.rowNumber, c]));
+      const effectiveDone = overrideDoneRows || pwDone;
+      const effectiveBulkPw = overridePassword || lastBulkPassword;
+
+      const csvRows = [
+        ["Excel Row", "Student Name", "Roll Number / ID", "Email (Username)", "Classroom", "Default Password", "Account Status", "Login Instructions"]
+      ];
+
+      for (const r of rows) {
+        if (!["created", "already_created"].includes(r.student?.status)) continue;
+        const c = currentCredMap.get(r.rowNumber);
+        const name = c?.name || (r.student?.studentRef ? `Student (${r.student.studentRef.replace(/^lms-student:/, "")})` : `Row ${r.rowNumber}`);
+        const email = c?.email || "—";
+        const roll = c?.rollNumber || c?.studentId || (r.student?.studentRef ? r.student.studentRef.replace(/^lms-student:/, "") : "");
+        const cls = [c?.className, c?.section].filter(Boolean).join(" - ") || (r.classroom?.status === "assigned" ? "Assigned" : "Not Assigned");
+        
+        const isPasswordSet = effectiveDone.has(r.rowNumber) || !!overridePassword;
+        const pw = isPasswordSet ? (effectiveBulkPw || "Password Set") : "Pending Setup";
+        const status = isPasswordSet ? "Active / Ready" : "Requires Password";
+        const instructions = isPasswordSet ? "Login at portal with Email & Password. Change password on first login." : "Admin must set password.";
+
+        csvRows.push([
+          `"${r.rowNumber}"`,
+          `"${String(name).replace(/"/g, '""')}"`,
+          `"${String(roll).replace(/"/g, '""')}"`,
+          `"${String(email).replace(/"/g, '""')}"`,
+          `"${String(cls).replace(/"/g, '""')}"`,
+          `"${String(pw).replace(/"/g, '""')}"`,
+          `"${status}"`,
+          `"${instructions}"`
+        ]);
+      }
+
+      if (csvRows.length <= 1) {
+        toast.info("No created students found to export.");
+        return false;
+      }
+
+      const csvContent = csvRows.map((e) => e.join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `student_login_credentials_${result.jobId || "batch"}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return true;
+    } catch (err) {
+      toast.error("Could not export credentials sheet: " + (err?.message || "Unknown error"));
+      return false;
+    } finally {
+      setDownloadingCsv(false);
+    }
+  };
+
   return (
     <div className="bg-[#fffdf4] rounded-none border border-[#ebdcaa] border-l-4 border-l-[#B99652] p-6 shadow-xs">
       <div className="flex items-center justify-between flex-wrap gap-2 mb-4 pb-3 border-b border-[#ebdcaa]">
@@ -1674,10 +1785,48 @@ const Results = ({ result, onVerify, onSetPassword, busy }) => {
         <Stat label="Classroom ambiguous" value={t.classroomAmbiguous ?? 0} tone={t.classroomAmbiguous ? "amber" : "gray"} />
         <Stat label="Needs attention" value={t.needsAttention ?? 0} tone={t.needsAttention ? "amber" : "gray"} />
       </div>
+
+      {/* Bulk Activation & Credentials Export Hub */}
+      {result.tempPasswordSetup && createdRows.length > 0 && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-[#1e1b4b] to-[#2d2870] text-[#ebdcaa] rounded-none flex flex-wrap items-center justify-between gap-4 shadow-sm border border-[#1e1b4b]">
+          <div>
+            <h4 className="font-bold text-sm text-white flex items-center gap-2">
+              <KeyRound size={16} className="text-[#B99652]" />
+              <span>Bulk Student Password & Credentials Hub</span>
+            </h4>
+            <p className="text-xs text-[#ebdcaa]/80 mt-1">
+              Set a default password for all <strong>{createdRows.length}</strong> imported students in one click and download a ready-to-share login credentials sheet (CSV).
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setShowBulkModal(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#B99652] hover:bg-[#a68444] text-white rounded-none text-xs font-bold shadow-xs transition-all active:scale-[0.98]"
+            >
+              <KeyRound size={14} />
+              <span>⚡ Set Default Password for All ({createdRows.length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                const ok = await downloadCredentialsCsv();
+                if (ok) toast.success("Credentials sheet downloaded successfully!");
+              }}
+              disabled={downloadingCsv}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-[#fffdf4] text-[#1e1b4b] border border-[#ebdcaa] rounded-none text-xs font-bold shadow-xs transition-all active:scale-[0.98] disabled:opacity-60"
+            >
+              {downloadingCsv ? <Loader2 size={14} className="animate-spin text-[#B99652]" /> : <Download size={14} className="text-[#B99652]" />}
+              <span>📥 Download Credentials Sheet (CSV)</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {result.emailTotals?.skipped > 0 && (
         <p className="text-xs uppercase tracking-wider font-medium text-slate-700 bg-white border border-[#ebdcaa] rounded-none px-4 py-2.5 mb-4">
           Setup emails are paused (email is not configured on the server), so none were sent. The students and classroom
-          assignments were still created.
+          assignments were still created. Use the bulk password tool above to activate accounts.
         </p>
       )}
       {result.emailTotals && !(result.emailTotals.skipped > 0) && (
@@ -1699,11 +1848,12 @@ const Results = ({ result, onVerify, onSetPassword, busy }) => {
           <thead>
             <tr className="text-left bg-[#fffdf4] border-b border-[#ebdcaa] text-[#1e1b4b] uppercase tracking-wider font-semibold">
               <th className="py-3 px-4">Excel row</th>
-              <th className="py-3 px-4">Student</th>
+              <th className="py-3 px-4">Student Name</th>
+              <th className="py-3 px-4">Email (Login ID)</th>
               <th className="py-3 px-4">Student ID</th>
               <th className="py-3 px-4">Classroom</th>
-              {result.emailTotals && <th className="py-3 px-4">Setup email</th>}
-              {result.tempPasswordSetup && <th className="py-3 px-4">Password (temporary)</th>}
+              <th className="py-3 px-4">Account Status</th>
+              {result.tempPasswordSetup && <th className="py-3 px-4">Password</th>}
               <th className="py-3 px-4">Reason</th>
             </tr>
           </thead>
@@ -1713,15 +1863,36 @@ const Results = ({ result, onVerify, onSetPassword, busy }) => {
               const c = CLASSROOM_STATUS[r.classroom?.status] || { label: r.classroom?.status, tone: "gray" };
               const err = r.student?.error || r.classroom?.error;
               const studentId = typeof r.student?.studentRef === "string" ? r.student.studentRef.replace(/^lms-student:/, "") : "";
+              const cred = credMap.get(r.rowNumber);
+              const displayName = cred?.name || (studentId ? `Student (${studentId})` : `Row ${r.rowNumber}`);
+              const displayEmail = cred?.email || "—";
+              const classroomDisplay = cred?.classroom_name || [cred?.className, cred?.section].filter(Boolean).join(" - ") || null;
+
               return (
                 <tr key={r.rowNumber} className={`border-b border-[#ebdcaa]/50 last:border-0 hover:bg-[#fffdf4]/40 transition-colors ${r.needsAttention ? "bg-amber-50/50" : ""}`}>
                   <td className="py-3 px-4 font-semibold text-[#1e1b4b]">{r.rowNumber}</td>
-                  <td className="py-3 px-4"><Badge {...s} /></td>
+                  <td className="py-3 px-4">
+                    <span className="font-bold text-xs text-[#1e1b4b]">{displayName}</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    {displayEmail !== "—" ? (
+                      <span className="font-mono text-xs text-[#002366] bg-[#002366]/5 px-2 py-0.5 border border-[#002366]/15 font-semibold">
+                        {displayEmail}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 font-mono text-xs text-slate-600">{studentId}</td>
-                  <td className="py-3 px-4"><Badge {...c} /></td>
-                  {result.emailTotals && (
-                    <td className="py-3 px-4"><Badge {...(EMAIL_STATUS[r.email?.status] || { label: r.email?.status || "—", tone: "gray" })} /></td>
-                  )}
+                  <td className="py-3 px-4">
+                    <div className="flex flex-col gap-1 items-start">
+                      {classroomDisplay && (
+                        <span className="font-bold text-xs text-[#1e1b4b]">{classroomDisplay}</span>
+                      )}
+                      <Badge {...c} />
+                    </div>
+                  </td>
+                  <td className="py-3 px-4"><Badge {...s} /></td>
                   {result.tempPasswordSetup && (
                     <td className="py-3 px-4">
                       {["created", "already_created"].includes(r.student?.status) ? (
@@ -1759,6 +1930,30 @@ const Results = ({ result, onVerify, onSetPassword, busy }) => {
               toast.success(`Password set for the student in Excel row ${pwRow}.`);
             }
             return error;
+          }}
+        />
+      )}
+      {showBulkModal && (
+        <BulkPasswordModal
+          totalRows={createdRows.length}
+          onCancel={() => setShowBulkModal(false)}
+          onSubmit={async (password) => {
+            const res = await onSetBulkPassword(password);
+            if (res.passwordSet) {
+              const newDone = new Set(pwDone);
+              (res.updatedRows || []).forEach((rn) => newDone.add(rn));
+              setPwDone(newDone);
+              setLastBulkPassword(password);
+              setShowBulkModal(false);
+              toast.success(`Default password set successfully for ${res.count} student(s)!`);
+              // Auto-download the CSV sheet populated with this password right away
+              setTimeout(async () => {
+                const downloaded = await downloadCredentialsCsv(password, newDone);
+                if (downloaded) {
+                  toast.success("Login credentials CSV downloaded automatically!");
+                }
+              }, 250);
+            }
           }}
         />
       )}
@@ -1806,6 +2001,126 @@ const TempPasswordForm = ({ rowNumber, onCancel, onSubmit }) => {
         <button type="button" onClick={onCancel} disabled={saving} className="px-4 py-2 bg-white hover:bg-[#fffdf4] text-[#1e1b4b] border border-[#ebdcaa] rounded-none uppercase tracking-wider text-xs font-semibold">Cancel</button>
       </div>
     </form>
+  );
+};
+
+const BulkPasswordModal = ({ totalRows, onCancel, onSubmit }) => {
+  const [password, setPassword] = useState("Student@123");
+  const [confirm, setConfirm] = useState("Student@123");
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (password.length < 8) return setError("Use at least 8 characters.");
+    if (new TextEncoder().encode(password).length > 72) return setError("That password is too long (at most 72 bytes).");
+    if (password !== confirm) return setError("The two passwords do not match.");
+    setSaving(true);
+    try {
+      await onSubmit(password);
+    } catch (err) {
+      setError(err?.message || "Failed to set bulk passwords.");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-[#ebdcaa] shadow-xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between pb-3 border-b border-[#ebdcaa] mb-4">
+          <div className="flex items-center gap-2">
+            <KeyRound className="text-[#B99652]" size={18} />
+            <h3 className="font-bold font-['DM_Serif_Display',serif] text-lg text-[#1e1b4b]">
+              Bulk Default Password Setup
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={saving}
+            className="text-slate-400 hover:text-slate-600 text-sm font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p className="text-xs text-slate-600 mb-4">
+          This will set the chosen initial login password for all <strong>{totalRows}</strong> imported students who haven't set a password yet.
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#1e1b4b] uppercase tracking-wider mb-1">
+              Default Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPw ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={saving}
+                className="w-full text-xs p-2.5 pr-9 border border-[#ebdcaa] focus:border-[#B99652] focus:ring-1 focus:ring-[#B99652] outline-none"
+                placeholder="Minimum 8 characters"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#1e1b4b] uppercase tracking-wider mb-1">
+              Confirm Password
+            </label>
+            <input
+              type={showPw ? "text" : "password"}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              disabled={saving}
+              className="w-full text-xs p-2.5 border border-[#ebdcaa] focus:border-[#B99652] focus:ring-1 focus:ring-[#B99652] outline-none"
+              placeholder="Re-type password"
+              required
+            />
+          </div>
+
+          <div className="p-3 bg-[#fffdf4] border border-[#ebdcaa] text-[11px] text-[#7a705a] leading-relaxed">
+            💡 <strong>Auto-Download:</strong> Applying will set this password for all students and <strong>instantly download a ready-to-share login credentials sheet (CSV)</strong> with their usernames & passwords included!
+          </div>
+
+          {error && (
+            <p className="text-xs text-rose-600 font-semibold bg-rose-50 border border-rose-200 p-2.5">
+              {error}
+            </p>
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#ebdcaa]">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={saving}
+              className="px-4 py-2 border border-[#ebdcaa] bg-white text-xs font-semibold text-slate-700 hover:bg-[#fffdf4]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#B99652] hover:bg-[#a68444] text-white text-xs font-bold shadow-xs transition-colors disabled:opacity-50"
+            >
+              {saving ? <Loader2 size={13} className="animate-spin" /> : <KeyRound size={13} />}
+              <span>{saving ? "Applying to All..." : "Apply to All Students"}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

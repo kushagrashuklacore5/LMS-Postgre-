@@ -298,3 +298,4 @@ server/.env.*
 !server/.env.example
 *.pem
 *.key
+set_pg_pass.ps1

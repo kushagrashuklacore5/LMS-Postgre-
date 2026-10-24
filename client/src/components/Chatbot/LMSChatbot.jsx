@@ -5,6 +5,10 @@ import HintTooltip from '../HintTooltip';
 import { useAuth } from '../../auth/auth';
 import core5RobotPerfect from '../../assets/core5_robot_perfect.png';
 import core5RobotAvatar from '../../assets/core5_robot_avatar.png';
+import { handleMessage as handleStudentMessage } from './chatbotService';
+import { handleMessage as handleMentorMessage } from './mentorChatbotService';
+import { handleMessage as handleAdminMessage } from './adminChatbotService';
+import { API_BASE } from '../../config/api';
 
 /**
  * Core5 AI Assistant Mascot (Frontend UI Shell).
@@ -168,42 +172,36 @@ export default function LMSChatbot({ role = 'student' }) {
     setLoading(true);
 
     // Natural assistant responsiveness delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // =========================================================================
-    // 🔗 INTEGRATION POINT FOR YOUR FRIEND'S AI BACKEND:
-    // =========================================================================
-    // When your friend provides the AI API URL, uncomment this block:
-    // try {
-    //   const res = await fetch("YOUR_FRIEND_API_URL/chat", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ message: tMsg, role, userId })
-    //   });
-    //   const data = await res.json();
-    //   html = data.reply || data.answer || data.message;
-    // } catch (err) {
-    //   html = "Error connecting to AI service.";
-    // }
-    // =========================================================================
+    let html = '';
+    try {
+      const token = localStorage.getItem('token');
+      const ctx = {
+        API: API_BASE,
+        token,
+        user,
+      };
 
-    const html = `<div class="p-3 bg-amber-50/90 border border-amber-200/80 rounded-xl text-slate-700 text-xs leading-relaxed shadow-sm">
-      <div class="flex items-center gap-1.5 font-semibold text-[#002366] mb-1">
-        <span>🤖</span>
-        <span>${t('ai_assistant_title', 'Core5 AI Engine')}</span>
-      </div>
-      <p class="text-slate-600 mb-1.5">
-        ${t('ai_connecting_notice', 'Query received! The dedicated AI intelligence backend is currently being integrated and will answer live here shortly.')}
-      </p>
-      <div class="text-[11px] text-amber-900 bg-amber-100/70 p-2 rounded-lg font-mono">
-        Query: "${esc(tMsg)}"
-      </div>
-    </div>`;
+      if (role === 'mentor') {
+        html = await handleMentorMessage(tMsg, ctx);
+      } else if (role === 'admin') {
+        html = await handleAdminMessage(tMsg, ctx);
+      } else {
+        html = await handleStudentMessage(tMsg, ctx);
+      }
+    } catch (err) {
+      console.error('Chatbot API fetch error:', err);
+      html = `<div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs">
+        Failed to fetch records from server. Please try again.
+      </div>`;
+    }
 
     if (!mounted.current) return;
     setMessages((prev) => [...prev, { id: newId(), role: 'assistant', html }]);
     setLoading(false);
   };
+
 
   const resetChat = () => {
     setMessages([{ id: newId(), role: 'assistant', html: greetingHtml() }]);

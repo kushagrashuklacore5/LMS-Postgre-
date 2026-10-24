@@ -1,4 +1,5 @@
 const path = require("path");
+require("module").globalPaths.push(path.join(__dirname, "node_modules"));
 
 // Environment first: every module below reads process.env while loading.
 // Automated tests set LMS_SKIP_DOTENV so a developer's real .env (mail, payment

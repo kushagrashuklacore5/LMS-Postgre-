@@ -10,7 +10,7 @@ const { createLLMProvider } = require('../llm/createLLMProvider');
 const { openPostgresLmsAdapter } = require('../adapters/lms/PostgresLmsAdapter');
 const { openCustomFieldStore } = require('../adapters/lms/PostgresCustomFieldStore');
 const { createApprovedImportExecutor, InMemoryExecutionStore } = require('../execution/ApprovedImportExecutor');
-const { setStudentPasswordByAdmin } = require('../onboarding/tempAdminPasswordSetup');
+const { setStudentPasswordByAdmin, setBulkStudentPasswordsByAdmin, getImportStudentCredentials } = require('../onboarding/tempAdminPasswordSetup');
 const { buildImportTemplate, TEMPLATE_FILE_NAME } = require('../import/ImportTemplate');
 
 /**
@@ -268,6 +268,27 @@ function createLmsOnboardingRouter({ express, sql, env = process.env, llmProvide
         rowNumber: req.params.rowNumber,
         password,
         hashPassword: tempPasswordSetup.hashPassword,
+      }));
+    }));
+
+    router.post('/imports/:jobId/passwords/bulk', ownJob, wrap(async (req, res) => {
+      const { password, rows, ...rest } = body(req);
+      rejectExtra(rest);
+      res.json(await setBulkStudentPasswordsByAdmin({
+        sql,
+        actor: req.actor,
+        jobId: req.params.jobId,
+        rows: Array.isArray(rows) && rows.length ? rows : null,
+        password,
+        hashPassword: tempPasswordSetup.hashPassword,
+      }));
+    }));
+
+    router.get('/imports/:jobId/credentials', ownJob, wrap(async (req, res) => {
+      res.json(await getImportStudentCredentials({
+        sql,
+        actor: req.actor,
+        jobId: req.params.jobId,
       }));
     }));
   }

@@ -14,7 +14,7 @@ start "Frontend" cmd /c "npm run dev"
 echo.
 echo Services are starting...
 echo.
-echo Frontend: http://localhost:5174
+echo Frontend: http://localhost:5173
 echo Backend:  http://localhost:5002
 echo.
 echo This window can be closed safely.

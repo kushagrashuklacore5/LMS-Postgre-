@@ -1,5 +1,6 @@
 const { GeminiProvider } = require('./providers/gemini/GeminiProvider');
 const { HuggingFaceProvider, HF_MODEL_ID } = require('./providers/huggingface/HuggingFaceProvider');
+const { GroqProvider } = require('./providers/groq/GroqProvider');
 
 const HF_TOKEN_FORMAT = /^hf_[A-Za-z0-9]{20,}$/; // a Hugging Face user access token; never echoed
 
@@ -12,7 +13,7 @@ const HF_TOKEN_FORMAT = /^hf_[A-Za-z0-9]{20,}$/; // a Hugging Face user access t
  * configured, and reason says why (without revealing any secret).
  */
 function createLLMProvider(llmConfig, { fetchImpl } = {}) {
-  const { provider, model, geminiApiKey, hfModel, hfToken } = llmConfig;
+  const { provider, model, geminiApiKey, groqApiKey, hfModel, hfToken } = llmConfig;
   if (!provider) {
     return { provider: null, reason: 'SOA_LLM_PROVIDER is not set.' };
   }
@@ -20,6 +21,10 @@ function createLLMProvider(llmConfig, { fetchImpl } = {}) {
     if (!geminiApiKey) return { provider: null, reason: 'SOA_GEMINI_API_KEY is not set.' };
     if (!model) return { provider: null, reason: 'SOA_LLM_MODEL is not set.' };
     return { provider: new GeminiProvider({ apiKey: geminiApiKey, model, ...(fetchImpl ? { fetchImpl } : {}) }), reason: null };
+  }
+  if (provider === 'groq') {
+    if (!groqApiKey) return { provider: null, reason: 'GROQ_API_KEY (or SOA_GROQ_API_KEY) is not set.' };
+    return { provider: new GroqProvider({ apiKey: groqApiKey, model: model || 'openai/gpt-oss-120b', ...(fetchImpl ? { fetchImpl } : {}) }), reason: null };
   }
   if (provider === 'huggingface') {
     if (!hfToken) return { provider: null, reason: 'No Hugging Face token: set SOA_HUGGINGFACE_API_KEY (or HF_TOKEN).' };

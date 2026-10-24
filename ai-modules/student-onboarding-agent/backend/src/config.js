@@ -33,6 +33,7 @@ function loadLlmConfig(env = process.env) {
     provider: readText(env, 'SOA_LLM_PROVIDER'),
     model: readText(env, 'SOA_LLM_MODEL'),
     geminiApiKey: readText(env, 'SOA_GEMINI_API_KEY'),
+    groqApiKey: readText(env, 'GROQ_API_KEY') || readText(env, 'SOA_GROQ_API_KEY'),
     // Hugging Face (SOA_LLM_PROVIDER=huggingface): the module's own model setting; the token is
     // SOA_HUGGINGFACE_API_KEY, or else HF_TOKEN from the same server .env (loaded by server.js into this process).
     hfModel: readText(env, 'SOA_HUGGINGFACE_MODEL'),

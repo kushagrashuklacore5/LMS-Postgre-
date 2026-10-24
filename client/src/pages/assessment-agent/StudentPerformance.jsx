@@ -124,6 +124,33 @@ export default function StudentPerformance() {
     .filter((h) => h.state === "finished")
     .sort((a, b) => Date.parse(a.finishedAt) - Date.parse(b.finishedAt))
     .map((h) => ({ label: h.label, Student: h.percentage, "Class average": h.classAveragePercentage }));
+
+  const pacingChart = m.history
+    .filter((h) => h.state === "finished")
+    .sort((a, b) => Date.parse(a.finishedAt) - Date.parse(b.finishedAt))
+    .map((h) => {
+      const timePct = h.timeUsedPercent !== null && h.timeUsedPercent !== undefined
+        ? h.timeUsedPercent
+        : (h.timeUsedSeconds && h.allowedSeconds ? Math.round((h.timeUsedSeconds / h.allowedSeconds) * 100) : 0);
+      return {
+        label: h.label,
+        "Score (%)": h.percentage,
+        "Time Used (%)": timePct,
+        timeUsedSeconds: h.timeUsedSeconds,
+        allowedSeconds: h.allowedSeconds,
+      };
+    });
+
+  const questionBreakdownChart = m.history
+    .filter((h) => h.state === "finished")
+    .sort((a, b) => Date.parse(a.finishedAt) - Date.parse(b.finishedAt))
+    .map((h) => ({
+      label: h.label,
+      Correct: h.correct || 0,
+      Incorrect: h.incorrect || 0,
+      Unattempted: h.unattempted || 0,
+      total: h.totalQuestions || 0,
+    }));
   const [trendLabel, TrendIcon, trendTone] = TREND[m.trend.label] || TREND.insufficient_data;
   const recentDelta = m.scores.lastThreeAverage !== null && m.scores.average !== null ? Math.round((m.scores.lastThreeAverage - m.scores.average) * 100) / 100 : null;
 
@@ -235,6 +262,77 @@ export default function StudentPerformance() {
                     <li key={d.difficulty} className={focus === `difficulty:${d.difficulty}` ? "font-bold text-[#92400e]" : ""}>{d.difficulty}: {d.correct}/{d.questions} correct · {d.questions - d.answered} unanswered</li>
                   ))}
                 </ul>
+              </>
+            )}
+          </Section>
+        </div>
+
+        {/* 6B. Speed vs Accuracy & Question Attempt Dynamics */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Pacing & Speed vs Accuracy */}
+          <Section
+            id="perf-pacing"
+            title="Time Utilization vs Score (Pacing)"
+            subtitle="Compares the percentage of test duration used against student score to identify rushing vs struggles"
+          >
+            {pacingChart.length === 0 ? <p className="text-xs text-[#7a705a]">No finished tests yet.</p> : (
+              <>
+                <ResponsiveContainer width="100%" height={230}>
+                  <LineChart data={pacingChart} margin={{ left: -10, right: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+                    <XAxis dataKey="label" stroke={AXIS} tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 100]} stroke={AXIS} unit="%" tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(v, name, item) => {
+                        if (name === "Time Used (%)") {
+                          const s = item.payload.timeUsedSeconds;
+                          const a = item.payload.allowedSeconds;
+                          const dur = s !== null && s !== undefined ? `${Math.floor(s / 60)}m ${s % 60}s` : "";
+                          const maxDur = a ? ` / ${Math.round(a / 60)}m` : "";
+                          return [`${v}% ${dur ? `(${dur}${maxDur})` : ""}`, name];
+                        }
+                        return [`${v}%`, name];
+                      }}
+                      labelFormatter={(l) => `${l} · ${titles[l] || ""}`}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Line type="monotone" dataKey="Score (%)" stroke={NAVY} strokeWidth={2.5} dot={{ r: 4, fill: GOLD }} />
+                    <Line type="monotone" dataKey="Time Used (%)" stroke="#d97706" strokeWidth={2} strokeDasharray="4 4" dot={{ r: 3, fill: "#d97706" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+                <p className="text-[11px] text-[#7a705a] mt-2.5">
+                  💡 <strong>Diagnostic insight:</strong> Very low time with low score suggests careless rushing; high time with low score suggests conceptual difficulty under exam constraints.
+                </p>
+              </>
+            )}
+          </Section>
+
+          {/* Question Outcome Breakdown */}
+          <Section
+            id="perf-breakdown"
+            title="Question Outcome Breakdown"
+            subtitle="Volume and proportion of correct, incorrect, and unattempted questions per assessment"
+          >
+            {questionBreakdownChart.length === 0 ? <p className="text-xs text-[#7a705a]">No finished tests yet.</p> : (
+              <>
+                <ResponsiveContainer width="100%" height={230}>
+                  <BarChart data={questionBreakdownChart} margin={{ left: -10, right: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+                    <XAxis dataKey="label" stroke={AXIS} tick={{ fontSize: 11 }} />
+                    <YAxis stroke={AXIS} allowDecimals={false} tick={{ fontSize: 11 }} />
+                    <Tooltip
+                      formatter={(v, name, item) => [`${v} question${v === 1 ? "" : "s"} (${Math.round((v / (item.payload.total || 1)) * 100)}%)`, name]}
+                      labelFormatter={(l) => `${l} · ${titles[l] || ""}`}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Bar dataKey="Correct" stackId="outcome" fill="#059669" name="Correct" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="Incorrect" stackId="outcome" fill="#dc2626" name="Incorrect" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="Unattempted" stackId="outcome" fill="#9ca3af" name="Unattempted" radius={[0, 0, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+                <p className="text-[11px] text-[#7a705a] mt-2.5">
+                  💡 <strong>Diagnostic insight:</strong> Highlights whether score loss was driven by mistaken answers (negative marking risk) or unattempted/skipped questions.
+                </p>
               </>
             )}
           </Section>

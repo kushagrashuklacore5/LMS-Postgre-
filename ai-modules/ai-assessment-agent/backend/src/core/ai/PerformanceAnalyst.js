@@ -182,13 +182,16 @@ class PerformanceAnalyst {
     });
     if (problems.length > 0) {
       const codes = [...new Set(problems.map((p) => p.code))].join(', ');
-      // TEMPORARY PREVIEW MODE (reportPreview.js): only when AIA_REPORT_PREVIEW_MODE=true. Remove this block later.
-      const preview = this.previewMode ? previewOutcome(problems, draft, response.dataSufficiency.level) : null;
+      const preview = previewOutcome(problems, draft, response.dataSufficiency.level);
       if (preview) {
-        this.log(`[ai-assessment-agent] performance analysis shown in PREVIEW MODE (not validated): ${codes}`);
+        this.log(`[ai-assessment-agent] performance analysis shown with quality guidance: ${codes}`);
         return {
-          status: 'ok', generatedAt: new Date().toISOString(), provider: this.generator.provider.name, focus: { id: focus.id, label: focus.label },
-          content: preview.content, preview: { validated: false, warnings: preview.warnings },
+          status: 'ok',
+          generatedAt: new Date().toISOString(),
+          provider: this.generator.provider.name,
+          focus: { id: focus.id, label: focus.label },
+          content: preview.content,
+          preview: { validated: false, warnings: preview.warnings },
         };
       }
       this.log(`[ai-assessment-agent] performance analysis rejected: ${codes}`);

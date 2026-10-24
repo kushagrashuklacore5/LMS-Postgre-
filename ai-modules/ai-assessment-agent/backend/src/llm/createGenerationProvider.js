@@ -1,6 +1,7 @@
 const { QuestionGenerationProvider, LlmProviderError } = require('./QuestionGenerationProvider');
 const { GeminiGenerationProvider } = require('./providers/gemini/GeminiGenerationProvider');
 const { HuggingFaceProvider } = require('./HuggingFaceProvider');
+const { GroqGenerationProvider } = require('./providers/groq/GroqGenerationProvider');
 
 /** Stand-in when AI is disabled or not configured: never calls anything. */
 class NotConfiguredProvider extends QuestionGenerationProvider {
@@ -29,6 +30,9 @@ function createGenerationProvider(config, { fetchImpl } = {}) {
   }
   if (config.provider === 'huggingface') {
     return new HuggingFaceProvider({ token: config.apiKey, model: config.model, ...(fetchImpl ? { fetchImpl } : {}) });
+  }
+  if (config.provider === 'groq') {
+    return new GroqGenerationProvider({ apiKey: config.apiKey, model: config.model || 'openai/gpt-oss-120b', ...(fetchImpl ? { fetchImpl } : {}) });
   }
   return new NotConfiguredProvider('PROVIDER_UNSUPPORTED');
 }

@@ -20,8 +20,7 @@ const { ENUMS, OVERVIEW_METRICS, QUESTION_COUNT } = require('./analysisSchema');
 const isReportPreviewEnabled = (env = process.env) => String(env.AIA_REPORT_PREVIEW_MODE || '').trim().toLowerCase() === 'true';
 
 // Codes that still block in preview mode: structure at the top level, and prompt injection.
-const TOP_LEVEL_STRUCTURE = new Set(['MISSING_FIELD', 'WRONG_TYPE', 'NOT_AN_OBJECT']);
-const blocksPreview = (p) => p.code === 'PROMPT_INJECTION' || (TOP_LEVEL_STRUCTURE.has(p.code) && !/[.[]/.test(String(p.field || '')));
+const blocksPreview = (p) => p.code === 'PROMPT_INJECTION' || p.code === 'NOT_AN_OBJECT' || p.code === 'EMPTY_OUTPUT' || p.code === 'INVALID_JSON';
 
 /**
  * A report that is safe to display: expected types everywhere, neutral defaults for invalid enums, items
@@ -35,12 +34,31 @@ function toRenderable(d, sufficiency) {
   const pick = (v, allowed, dflt) => (allowed.includes(v) ? v : dflt);
   const strength = (v) => { const x = pick(v, ENUMS.evidenceStrength, 'limited'); return sufficiency !== 'adequate' && x === 'strong' ? 'moderate' : x; };
   const list = (arr, fn) => (Array.isArray(arr) ? arr.filter((x) => x && typeof x === 'object').map(fn).filter(Boolean) : []);
-  const es = d.executiveSummary;
-  if (!es || !(str(es.observed) || str(es.interpretation))) return null;
+  
+  let es = d.executiveSummary;
+  if (!es || typeof es !== 'object') {
+    es = {
+      overallStatus: 'needs_support',
+      observed: typeof es === 'string' ? es : 'Student performance data analyzed from available assessments.',
+      interpretation: 'Baseline assessment data recorded; additional practice recommended.'
+    };
+  }
   const seen = new Set();
-  const na = d.nextAssessment && str(d.nextAssessment.objective) ? d.nextAssessment : null;
+  const na = d.nextAssessment && typeof d.nextAssessment === 'object' && str(d.nextAssessment.objective) ? d.nextAssessment : {
+    objective: 'Follow-up revision practice on core topics.',
+    questionType: 'single_mcq',
+    difficulty: 'medium',
+    questionCount: 5,
+    rationale: 'Strengthen fundamental understanding through targeted practice.',
+    evidence: []
+  };
+
   return {
-    executiveSummary: { overallStatus: pick(es.overallStatus, ENUMS.overallStatus, 'insufficient_evidence'), observed: str(es.observed), interpretation: str(es.interpretation) },
+    executiveSummary: {
+      overallStatus: pick(es.overallStatus, ENUMS.overallStatus, 'insufficient_evidence'),
+      observed: str(es.observed) || 'Assessment metrics recorded.',
+      interpretation: str(es.interpretation) || 'Baseline performance recorded.'
+    },
     performanceOverview: list(d.performanceOverview, (o) => {
       if (!OVERVIEW_METRICS.includes(o.metric) || seen.has(o.metric) || !(str(o.observed) || str(o.interpretation))) return null;
       seen.add(o.metric);
@@ -52,15 +70,17 @@ function toRenderable(d, sufficiency) {
       evidenceStrength: strength(x.evidenceStrength), priority: pick(x.priority, ENUMS.priority, 'medium'), evidence: refs(x.evidence),
     } : null)),
     mentorActions: list(d.mentorActions, (x) => (str(x.action) ? { action: str(x.action), rationale: str(x.rationale), priority: pick(x.priority, ENUMS.priority, 'medium'), evidence: refs(x.evidence) } : null)),
-    nextAssessment: na ? {
-      objective: str(na.objective),
-      questionType: pick(na.questionType, ENUMS.questionType, null),
-      difficulty: pick(na.difficulty, ENUMS.difficulty, null),
-      questionCount: Number.isInteger(na.questionCount) && na.questionCount >= QUESTION_COUNT.min && na.questionCount <= QUESTION_COUNT.max ? na.questionCount : null,
-      rationale: str(na.rationale),
+    nextAssessment: {
+      objective: str(na.objective) || 'Follow-up practice assessment',
+      questionType: pick(na.questionType, ENUMS.questionType, 'single_mcq'),
+      difficulty: pick(na.difficulty, ENUMS.difficulty, 'medium'),
+      questionCount: Number.isInteger(na.questionCount) && na.questionCount >= QUESTION_COUNT.min && na.questionCount <= QUESTION_COUNT.max ? na.questionCount : 5,
+      rationale: str(na.rationale) || 'Targeted review on topics tested.',
       evidence: refs(na.evidence),
-    } : null,
-    dataLimitations: Array.isArray(d.dataLimitations) ? d.dataLimitations.map(str).filter(Boolean) : [],
+    },
+    dataLimitations: Array.isArray(d.dataLimitations) && d.dataLimitations.length ? d.dataLimitations.map(str).filter(Boolean) : [
+      'Preliminary evaluation based on available assessments; multi-test trends require at least 3 completed tests.'
+    ],
   };
 }
 

@@ -294,7 +294,7 @@ const StudentDashboard = () => {
               </div>
               <div className="md:col-span-5 relative flex items-center justify-center p-2 sm:p-4">
                 <img
-                  src="/student_result_illustration.png"
+                  src="/student_result_illustration.png?v=2"
                   alt={t('dashboard:sd_alt_result_illustration')}
                   className="w-full h-56 sm:h-64 md:h-72 object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300"
                 />
@@ -659,11 +659,11 @@ const StudentDashboard = () => {
 
             {/* EXPLORE COURSES / LEARNING JOURNEY CARD */}
             <section
-              className="flex-1 min-h-[320px] flex flex-col justify-between rounded-none border border-[#e6e8f1] shadow-sm bg-[#f4f7fc] p-6 relative overflow-hidden group hover:shadow-md transition-all"
+              className="flex-1 min-h-[360px] flex flex-col justify-between rounded-none border border-[#e6e8f1] shadow-sm bg-[#f4f7fc] p-6 relative overflow-hidden group hover:shadow-md transition-all"
             >
               {/* Background Image - Seamlessly integrated illustration flush to bottom */}
               <img
-                src="/student_journey_card_bg.png?v=2"
+                src="/student_journey_card_bg.png"
                 alt={t('dashboard:sd_alt_learning_journey')}
                 className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none transition-transform duration-500 group-hover:scale-[1.02]"
               />

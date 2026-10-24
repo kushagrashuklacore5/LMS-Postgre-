@@ -20,7 +20,6 @@
     "axios": "^1.13.6",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^12.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "exceljs": "^4.4.0",
@@ -56,7 +55,6 @@
   "license": "ISC",
   "allowScripts": {
     "bcrypt@6.0.0": true,
-    "better-sqlite3@12.9.0": true,
     "sqlite3@6.0.1": true
   }
 }

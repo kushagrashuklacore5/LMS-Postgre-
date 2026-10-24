@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { BarChart3, Loader2, RefreshCw, RotateCcw } from "lucide-react";
+import { ArrowUpRight, BarChart3, Loader2, RefreshCw, RotateCcw, Sparkles } from "lucide-react";
 
 /*
  * AI Assessment Agent (Step 3) - teacher report for one of the teacher's own tests.
@@ -99,6 +99,28 @@ export default function AssessmentReport({ base, auth, assessmentId, errorText }
         ))}
       </div>
 
+      {/* AI Performance & Diagnostic Callout Banner */}
+      <div className="mb-5 p-3.5 sm:p-4 bg-gradient-to-r from-[#1e1b4b]/5 via-[#B99652]/10 to-[#fffdf4] border border-[#ebdcaa] rounded-none flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-[#1e1b4b] text-[#ebdcaa] flex items-center justify-center shrink-0 shadow-xs ring-2 ring-[#B99652]/30">
+            <Sparkles size={16} className="text-[#ebdcaa]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-xs sm:text-sm font-bold text-[#1e1b4b]">
+                Detailed Student AI Diagnostics & Analytics
+              </h4>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-none bg-[#1e1b4b] text-[#ebdcaa] uppercase tracking-wider">
+                AI Powered
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[#665e4d] mt-0.5">
+              Click <strong className="text-[#1e1b4b]">"AI Analytics & Report"</strong> on any student row below to view topic breakdown, performance curves, and generate full AI diagnostic evaluations.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {report.students.length === 0 ? (
         <p className="text-xs text-[#7a705a] py-6 text-center border border-dashed border-[#ebdcaa]">
           No students in this classroom have initiated or completed the assessment yet.
@@ -117,6 +139,7 @@ export default function AssessmentReport({ base, auth, assessmentId, errorText }
                 <th className="px-3">Unattempted</th>
                 <th className="px-3">Submitted</th>
                 <th className="px-3">Time taken</th>
+                <th className="px-3 text-center">AI Diagnostics</th>
                 <th className="px-3"></th>
               </tr>
             </thead>
@@ -126,21 +149,17 @@ export default function AssessmentReport({ base, auth, assessmentId, errorText }
                 return (
                   <tr key={r.studentId} className="hover:bg-[#fffdf4]/50 transition-colors" data-testid="aia-report-row" data-student={r.studentName}>
                     <td className="py-3 px-3 font-bold text-[#1e1b4b]">
-                      {r.studentName}
-                      {r.attemptNumber > 1 && <span className="block text-[11px] text-[#7a705a] font-normal">Attempt {r.attemptNumber}</span>}
+                      <div>{r.studentName}</div>
+                      {r.attemptNumber > 1 && (
+                        <span className="inline-block text-[10px] text-[#92400e] bg-[#fff8e7] border border-[#fde68a] px-1.5 py-0.5 rounded-none font-semibold mt-1">
+                          Attempt {r.attemptNumber}
+                        </span>
+                      )}
                       {r.previousAttempts && r.previousAttempts.length > 0 && (
-                        <span className="block text-[10px] text-[#7a705a] font-normal" data-testid="aia-report-previous">
+                        <span className="block text-[10px] text-[#7a705a] font-normal mt-0.5" data-testid="aia-report-previous">
                           Previous: {r.previousAttempts.map((p) => `${p.score}/${p.totalQuestions} (${p.percentage}%)`).join(", ")}
                         </span>
                       )}
-                      <Link
-                        to={`/teacher/assessments/students/${r.studentId}`}
-                        data-testid="aia-report-performance"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#1e1b4b] hover:text-[#B99652] transition-colors mt-1"
-                      >
-                        <BarChart3 size={12} className="text-[#B99652]" />
-                        <span>View Analytics</span>
-                      </Link>
                     </td>
                     <td className="px-3"><span className={`text-[10px] font-bold px-2 py-0.5 rounded-none whitespace-nowrap ${cls}`}>{label}</span></td>
                     <td className="px-3 font-bold text-[#1e1b4b]" data-testid="aia-report-score">{r.score === undefined ? "-" : `${r.score}/${r.totalQuestions}`}</td>
@@ -150,6 +169,18 @@ export default function AssessmentReport({ base, auth, assessmentId, errorText }
                     <td className="px-3 text-[#7a705a]">{show(r.unattempted)}</td>
                     <td className="px-3 text-[#7a705a]">{fmtTime(r.submittedAt)}</td>
                     <td className="px-3 text-[#7a705a]">{fmtDuration(r.timeTakenSeconds)}</td>
+                    <td className="px-3 text-center whitespace-nowrap">
+                      <Link
+                        to={`/teacher/assessments/students/${r.studentId}`}
+                        data-testid="aia-report-performance"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1e1b4b] hover:bg-[#2d2870] text-[#ebdcaa] hover:text-white rounded-none text-xs font-bold shadow-xs transition-all active:scale-[0.98] group"
+                        title={`View analytics and generate AI performance report for ${r.studentName}`}
+                      >
+                        <Sparkles size={13} className="text-[#ebdcaa] group-hover:scale-110 transition-transform" />
+                        <span>AI Analytics & Report</span>
+                        <ArrowUpRight size={13} className="text-[#ebdcaa]/70 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </Link>
+                    </td>
                     <td className="px-3 text-right">
                       {(r.status === "submitted" || r.status === "expired") && report.assessment.availability !== "closed" && (
                         <button
