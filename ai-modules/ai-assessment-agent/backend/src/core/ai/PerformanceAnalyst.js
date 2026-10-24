@@ -182,7 +182,10 @@ class PerformanceAnalyst {
     });
     if (problems.length > 0) {
       const codes = [...new Set(problems.map((p) => p.code))].join(', ');
-      const preview = previewOutcome(problems, draft, response.dataSufficiency.level);
+      // Unvalidated reports are shown only in preview mode (AIA_REPORT_PREVIEW_MODE=true). Default is strict:
+      // an analysis that fails validation (unsafe markup, health/personality claims, invented numbers,
+      // subjects or questions) is not shown.
+      const preview = this.previewMode ? previewOutcome(problems, draft, response.dataSufficiency.level) : null;
       if (preview) {
         this.log(`[ai-assessment-agent] performance analysis shown with quality guidance: ${codes}`);
         return {

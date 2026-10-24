@@ -1,5 +1,5 @@
 const db = require('../config/database-switch');
-const { all, run, withTransaction } = require('../helpers/dbAsync');
+const { all, run, withKeyedTransaction } = require('../helpers/dbAsync');
 const { authorizeClassroom } = require('../helpers/teachingScope');
 const ExcelJS = require('exceljs');
 
@@ -46,12 +46,17 @@ const markAttendance = async (req, res) => {
     const attendanceDate = day.toISOString().split('T')[0];
     const markedBy = req.user.userId;
 
-    await withTransaction(async () => {
+    // One register per class and day: saves of the same register are serialised (and replace each other
+    // whole); saves of different classes run in parallel. The rows go in as one multi-row insert.
+    await withKeyedTransaction(`attendance:${Number(classroomId)}:${attendanceDate}`, async () => {
       await run('DELETE FROM attendance WHERE classroomId = ? AND DATE(date) = ?', [classroomId, attendanceDate]);
-      for (const [studentId, status] of register) {
-        await run('INSERT INTO attendance (classroomId, studentId, date, status, markedBy) VALUES (?, ?, ?, ?, ?)', [
-          classroomId, studentId, attendanceDate, status, markedBy,
-        ]);
+      const rows = [...register];
+      for (let i = 0; i < rows.length; i += 1000) {
+        const chunk = rows.slice(i, i + 1000);
+        await run(
+          `INSERT INTO attendance (classroomId, studentId, date, status, markedBy) VALUES ${chunk.map(() => '(?, ?, ?, ?, ?)').join(', ')}`,
+          chunk.flatMap(([studentId, status]) => [classroomId, studentId, attendanceDate, status, markedBy])
+        );
       }
     });
 

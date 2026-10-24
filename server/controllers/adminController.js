@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../helpers/passwords");
 const { isEmail } = require("../helpers/validators");
 const db = require('../config/database-switch');
 const {

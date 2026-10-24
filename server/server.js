@@ -410,7 +410,17 @@ async function start(port = process.env.PORT || 5002) {
   const db = require("./config/database-switch");
   try {
     await db.connect();
-    await require("./config/demoSeed").seedDemoData(db);
+    const demo = require("./config/demoSeed");
+    await demo.seedDemoData(db);
+    // Accounts that still use a published (demo) password are open doors: production refuses to start.
+    const exposed = await demo.findAccountsWithPublishedPasswords(db);
+    if (exposed.length) {
+      const list = exposed.map((a) => `${a.email} (${a.role})`).join(", ");
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(`${exposed.length} account(s) still use a published demo password: ${list}. Change or remove them before starting in production.`);
+      }
+      console.warn(`⚠️  ${exposed.length} account(s) use a published demo password (refused in production): ${list}`);
+    }
   } catch (err) {
     console.error(`❌ Database start-up failed: ${err.message}`);
     process.exit(1);

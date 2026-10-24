@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../helpers/passwords");
 const db = require("../config/database-switch");
 const { signToken } = require("../config/jwt");
 const { verifyPassword } = require("../utils/passwordUtils");

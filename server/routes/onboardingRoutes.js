@@ -1,6 +1,6 @@
 const path = require("path");
 const express = require("express");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../helpers/passwords");
 const rateLimit = require("express-rate-limit");
 const {
   createLmsOnboardingRouter,

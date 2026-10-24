@@ -1,5 +1,5 @@
 const tenantConnectionManager = require('../config/tenant-connection-manager');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('../helpers/passwords');
 const { v4: uuidv4 } = require('uuid');
 
 /**

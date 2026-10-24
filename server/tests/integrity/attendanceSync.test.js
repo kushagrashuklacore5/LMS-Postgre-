@@ -33,6 +33,23 @@ describe('attendance reaches the student', () => {
     assert.deepEqual(await todayFor('studentA2'), []);
   });
 
+  it('concurrent saves of one register leave exactly one consistent register; other classes save in parallel', async () => {
+    const date = '2026-02-02';
+    const save = (as, classroomId, studentId, status) => ctx.api('POST', '/api/attendance/mark', {
+      as, body: { classroomId, date, attendanceData: [{ studentId, status }] },
+    });
+    const responses = await Promise.all([
+      ...Array.from({ length: 15 }, (_, i) => save('mentorA', ids.classroomA, ids.users.studentA, i % 2 ? 'present' : 'absent')),
+      save('mentorA2', ids.classroomA2, ids.users.studentA2, 'present'),
+    ]);
+    assert.ok(responses.every((r) => r.status === 200), responses.map((r) => r.status).join(','));
+    const rowsA = await ctx.db.all('SELECT status FROM attendance WHERE classroomId = ? AND date = ?', [ids.classroomA, date]);
+    assert.equal(rowsA.length, 1, 'one row per student per day, never duplicates');
+    assert.ok(['present', 'absent'].includes(rowsA[0].status));
+    const rowsA2 = await ctx.db.all('SELECT status FROM attendance WHERE classroomId = ? AND date = ?', [ids.classroomA2, date]);
+    assert.deepEqual(rowsA2.map((r) => r.status), ['present']);
+  });
+
   it('the student\'s open page is told to reload; other students are not', { skip: !fs.existsSync(SOCKET_CLIENT) && 'socket.io-client is not installed in client/' }, async () => {
     const { io } = require(SOCKET_CLIENT);
     const connect = (as) => new Promise((resolve, reject) => {

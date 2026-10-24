@@ -28,7 +28,7 @@ const AnnouncementBell = () => {
       console.log(`🔔 Bell fetching from: ${API}/announcements`);
       console.log(`🔔 User: ${user?.id} (${user?.role}), Token: ${token?.substring(0, 20)}...`);
       
-      const res = await fetch(`${API}/announcements`, {
+      const res = await fetch(`${API}/announcements?limit=30`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -159,11 +159,11 @@ const AnnouncementBell = () => {
 
   /* ================= PERIODIC POLLING ================= */
   useEffect(() => {
-    // Fetch announcements every 10 seconds to ensure latest data always shows
+    // New notifications arrive in real time over the socket (notification:new / announcement:*); this poll
+    // is only a fallback for a missed event, so once a minute (every 10 s made the bell the busiest endpoint).
     const interval = setInterval(() => {
-      console.log(`🔄 Polling announcements...`);
       fetchAnnouncements();
-    }, 10000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [token, API, user?.id]);

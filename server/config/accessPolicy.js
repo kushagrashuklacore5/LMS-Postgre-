@@ -55,6 +55,7 @@ const ACCESS_POLICY = [
 
   /* ---------- Any signed-in account ---------- */
   rule("/auth/logout", SIGNED_IN, { methods: ["POST"], exact: true }),
+  rule("/auth/me", SIGNED_IN, { methods: READ, exact: true }),
   // Help assistant: role and school are taken from the session, never from the request (routes/assistantRoutes.js)
   rule("/assistant", SIGNED_IN),
 

@@ -156,6 +156,8 @@ const getAllAnnouncements = async (req, res) => {
     const role = req.user.role;
     const userId = req.user.userId;
     const universityId = req.user?.universityId || req.user?.university_id;
+    // Newest first, never unbounded: ?limit=N (1-500), default and maximum 500. The bell asks for 30.
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 500, 1), 500);
 
     // The platform owner belongs to no school: only notifications addressed to this account
     if (role === "superadmin") {
@@ -163,8 +165,9 @@ const getAllAnnouncements = async (req, res) => {
         `SELECT a.*, u.name as createdByUserName
          FROM announcements a LEFT JOIN users u ON a.createdByUser = u.id
          WHERE a.recipientUserId = ?
-         ORDER BY a.createdAt DESC, a.id DESC`,
-        [userId],
+         ORDER BY a.createdAt DESC, a.id DESC
+         LIMIT ?`,
+        [userId, limit],
         (err, rows) => {
           if (err) {
             console.error("Error fetching announcements:", err);
@@ -227,10 +230,10 @@ const getAllAnnouncements = async (req, res) => {
       OR (a.recipientUserId IS NULL AND ${audience})
     )`;
 
-    query += ` ORDER BY a.createdAt DESC, a.id DESC`;
+    query += ` ORDER BY a.createdAt DESC, a.id DESC LIMIT ?`;
 
     // universityId, the user (targeted rows), then the role's own parameters in the order they appear
-    const params = [universityId, userId, ...roleParams];
+    const params = [universityId, userId, ...roleParams, limit];
 
     getDb(req).all(query, params, (err, announcements) => {
       if (err) {

@@ -6,6 +6,34 @@
  */
 const demoSeedEnabled = () => process.env.SEED_DEMO_DATA === 'true' && process.env.NODE_ENV !== 'production';
 
+// Passwords that are published (in this repository, its history or its documentation). An account that
+// still uses one must not exist on a production server: see findAccountsWithPublishedPasswords.
+const PUBLISHED_PASSWORDS = ['password', 'Demo@1234'];
+
+/**
+ * Accounts that still sign in with a published password. To stay fast on any size of database it checks
+ * every privileged account (superadmin, admin, accountant, storekeeper) plus demo addresses, not every
+ * student. Returns [{ email, role }] (no passwords).
+ */
+async function findAccountsWithPublishedPasswords(db) {
+  const bcrypt = require('../helpers/passwords');
+  const rows = await new Promise((resolve, reject) => db.all(
+    `SELECT email, role, password FROM users
+     WHERE role IN ('superadmin', 'admin', 'accountant', 'storekeeper')
+        OR LOWER(email) LIKE '%@demo.com' OR LOWER(email) IN ('admin@gmail.com', 'mentor@gmail.com', 'student@gmail.com')`,
+    [],
+    (err, result) => (err ? reject(err) : resolve(result || []))
+  ));
+  const found = [];
+  for (const row of rows) {
+    if (typeof row.password !== 'string' || !row.password.startsWith('$2')) continue;
+    for (const candidate of PUBLISHED_PASSWORDS) {
+      if (await bcrypt.compare(candidate, row.password)) { found.push({ email: row.email, role: row.role }); break; }
+    }
+  }
+  return found;
+}
+
 // bcrypt hash of the well-known demo password "password"
 const DEMO_HASH = '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi';
 
@@ -66,4 +94,4 @@ async function seedDemoData(db) {
   });
 }
 
-module.exports = { seedDemoData, demoSeedEnabled };
+module.exports = { seedDemoData, demoSeedEnabled, findAccountsWithPublishedPasswords, PUBLISHED_PASSWORDS };

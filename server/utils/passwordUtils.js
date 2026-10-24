@@ -59,7 +59,8 @@ async function verifyPassword(plain, stored) {
     return { valid: false, needsUpgrade: false };
   }
   if (BCRYPT_PREFIX.test(stored)) {
-    return { valid: await bcrypt.compare(plain, stored), needsUpgrade: false };
+    // Native bcrypt on a worker thread (helpers/passwords): logins no longer block the event loop
+    return { valid: await require('../helpers/passwords').compare(plain, stored), needsUpgrade: false };
   }
   if (SHA256_HEX.test(stored)) {
     const digest = crypto.createHash('sha256').update(plain).digest('hex');

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { csvCell } = require('../helpers/csv');
 const path = require('path');
 const fs = require('fs');
 
@@ -179,17 +180,7 @@ router.get('/table/:tableName/excel', async (req, res) => {
         // Add data rows
         rows.forEach(row => {
           const values = columnNames.map(col => {
-            const value = row[col];
-            // Handle null values, escape commas, quotes, and newlines
-            if (value === null || value === undefined) {
-              return '';
-            }
-            const stringValue = String(value);
-            // Escape for CSV
-            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
-              return `"${stringValue.replace(/"/g, '""')}"`;
-            }
-            return stringValue;
+            return csvCell(row[col]);
           });
           csv += values.join(',') + '\n';
         });
@@ -246,15 +237,7 @@ router.get('/database/excel', async (req, res) => {
       // Add table data
       rows.forEach(row => {
         const values = columnNames.map(col => {
-          const value = row[col];
-          if (value === null || value === undefined) {
-            return '';
-          }
-          const stringValue = String(value);
-          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n') || stringValue.includes('\r')) {
-            return `"${stringValue.replace(/"/g, '""')}"`;
-          }
-          return stringValue;
+          return csvCell(row[col]);
         });
         combinedCsv += values.join(',') + '\n';
       });

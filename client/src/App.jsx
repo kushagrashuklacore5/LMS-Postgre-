@@ -1,27 +1,20 @@
-import ClassroomDetails from "./pages/admin/ClassroomDetails";
 
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 
 import { useTranslation } from './context/TranslationContext';
 import { SUPPORTED_LANGUAGES } from './i18n/languageRegistry';
 
 import { useAuth } from "./auth/auth";
 
-import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
 
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 
-import SuperAdminSubscription from "./pages/superadmin/SuperAdminSubscription";
 
-import InternalAdminPortal from "./pages/internal/InternalAdminPortal";
 
-import VendorManagement from "./storekeeper/VendorManagement";
 
 import { ToastContainer } from "react-toastify";
 
-import DatabaseExport from "./pages/admin/DatabaseExport";
 
 import ControlledTermsModal from "./components/ControlledTermsModal";
 
@@ -29,51 +22,30 @@ import ControlledTermsModal from "./components/ControlledTermsModal";
 
 /* ================= PUBLIC ================= */
 
-import Home from "./pages/Home";
 
-import Login from "./pages/Login";
 
-import Register from "./pages/Register";
 
 
 
 /* ================= ADMIN ================= */
 
-import AdminDashboard from "./pages/admin/Admin-Dashboard";
 
-import CreateCourseAdmin from "./pages/admin/CreateCourseAdmin";
-import AdminCourses from "./pages/admin/AdminCourses";
-import MyStudents from "./pages/mentor/MyStudents";
-import LiveLecture from "./pages/LiveLecture";
-import StudentLectures from "./pages/student/StudentLectures";
 
-import UserList from "./pages/admin/UserList";
 
-import MentorApproval from "./pages/admin/MentorApproval";
 
-import Analytics from "./pages/admin/Analytics";
 
-import AddStudent from "./pages/admin/AddStudent";
 
-import AddTeacher from "./pages/admin/AddTeacher";
 
-import Classrooms from "./pages/admin/Classrooms";
 
-import FeeStructure from "./pages/admin/FeeStructure";
 
 
 
 /* ================= ACCOUNTANT ================= */
 
-import AccountantDashboard from "./pages/accountant/AccountantDashboard_temp";
 
-import PaymentHistory from "./pages/accountant/PaymentHistory_temp";
 
-import VendorInvoiceManagement from "./pages/accountant/VendorInvoiceManagement";
 
-import Expenses from "./pages/accountant/Expenses_temp";
 
-import AccountantDatabaseExport from "./pages/accountant/DatabaseExport";
 
 // Simple test component
 const TestDatabaseExport = () => {
@@ -88,15 +60,12 @@ const TestDatabaseExport = () => {
   );
 };
 
-import FeesCollection from "./pages/accountant/FeesCollection_temp";
 
-import LegacyReconciliationPage from "./pages/accountant/LegacyReconciliationPage";
 
 
 
 /* ================= STOREKEEPER ================= */
 
-import StorekeeperDashboard from "./storekeeper/StorekeeperDashboardSimple";
 
 
 
@@ -104,107 +73,140 @@ import StorekeeperDashboard from "./storekeeper/StorekeeperDashboardSimple";
 
 import VendorLayout from "./components/VendorLayout";
 
-import VendorDashboard from "./vendor/VendorDashboard";
 
-import VendorInvoices from "./vendor/VendorInvoices";
 
-import VendorStock from "./vendor/VendorStock";
 
-import VendorPayments from "./vendor/VendorPayments";
 
-import VendorOrders from "./vendor/VendorOrders";
 
 
 
 /* ================= CALENDAR ================= */
 
-import CalendarPage from "./calendar/CalendarPage";
 
 
 
 /* ================= MENTOR ================= */
 
-import MentorDashboard from "./pages/mentor/MentorDashboard";
 
-import CreateCourse from "./pages/mentor/CreateCourse";
 
-import AddChapter from "./pages/mentor/AddChapter";
 
-import AssignStudent from "./pages/mentor/AssignStudents";
 
-import Progress from "./pages/mentor/Progress";
 
-import CreateAssessment from "./pages/mentor/CreateAssessment";
 
-import DesignAssessment from "./pages/mentor/DesignAssessment";
 
-import MyClassroom from "./pages/mentor/MyClassroom";
 
-import MentorClassrooms from "./pages/mentor/MentorClassrooms";
 
-import ClassroomDetail from "./pages/mentor/ClassroomDetail";
 
-import CourseTeacherPortal from "./pages/mentor/CourseTeacherPortal";
 
-import AttendanceManagement from "./pages/mentor/AttendanceManagement";
 
-import ClassResults from "./pages/mentor/ClassResults";
 
-import AddResult from "./pages/mentor/AddResult";
 
-import MentorCourseDetails from "./pages/mentor/MentorCourseDetails";
 
-import CourseMaterialsUpload from "./pages/mentor/CourseMaterialsUpload";
 
-import ClassFeeStatus from "./pages/mentor/ClassFeeStatus";
 
 
 
 /* ================= STUDENT ================= */
 
-import StudentDashboard from "./pages/student/Student-Dashboard";
-
-import Subscription from "./pages/student/Subscription";
-
-import Courses from "./pages/student/Courses";
-
-import CourseViewer from "./pages/student/CourseViewer";
-
-import Certificates from "./pages/student/Certificates";
-
-import AttemptAssessment from "./pages/student/AttemptAssessment";
-
-import StudentResults from "./pages/student/StudentResults";
-
-import StudentAttendance from "./pages/student/StudentAttendance";
 
 
 
-import Timetable from "./pages/student/Timetable";
 
-import PayFees from "./pages/student/PayFees";
 
-import Requirements from "./pages/mentor/Requirements";
+
+
+
+
+
+
+
 
 
 
 /* ================= SHARED ================= */
 
-import Announcements from "./pages/Announcements";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Pages load on first visit (one file per page) instead of all in the first download.
+const ClassroomDetails = lazy(() => import("./pages/admin/ClassroomDetails"));
+const SuperAdminLogin = lazy(() => import("./pages/superadmin/SuperAdminLogin"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const SuperAdminSubscription = lazy(() => import("./pages/superadmin/SuperAdminSubscription"));
+const InternalAdminPortal = lazy(() => import("./pages/internal/InternalAdminPortal"));
+const VendorManagement = lazy(() => import("./storekeeper/VendorManagement"));
+const DatabaseExport = lazy(() => import("./pages/admin/DatabaseExport"));
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const AdminDashboard = lazy(() => import("./pages/admin/Admin-Dashboard"));
+const CreateCourseAdmin = lazy(() => import("./pages/admin/CreateCourseAdmin"));
+const AdminCourses = lazy(() => import("./pages/admin/AdminCourses"));
+const MyStudents = lazy(() => import("./pages/mentor/MyStudents"));
+const LiveLecture = lazy(() => import("./pages/LiveLecture"));
+const StudentLectures = lazy(() => import("./pages/student/StudentLectures"));
+const UserList = lazy(() => import("./pages/admin/UserList"));
+const MentorApproval = lazy(() => import("./pages/admin/MentorApproval"));
+const Analytics = lazy(() => import("./pages/admin/Analytics"));
+const AddStudent = lazy(() => import("./pages/admin/AddStudent"));
+const AddTeacher = lazy(() => import("./pages/admin/AddTeacher"));
+const Classrooms = lazy(() => import("./pages/admin/Classrooms"));
+const FeeStructure = lazy(() => import("./pages/admin/FeeStructure"));
+const AccountantDashboard = lazy(() => import("./pages/accountant/AccountantDashboard_temp"));
+const PaymentHistory = lazy(() => import("./pages/accountant/PaymentHistory_temp"));
+const VendorInvoiceManagement = lazy(() => import("./pages/accountant/VendorInvoiceManagement"));
+const Expenses = lazy(() => import("./pages/accountant/Expenses_temp"));
+const AccountantDatabaseExport = lazy(() => import("./pages/accountant/DatabaseExport"));
+const FeesCollection = lazy(() => import("./pages/accountant/FeesCollection_temp"));
+const LegacyReconciliationPage = lazy(() => import("./pages/accountant/LegacyReconciliationPage"));
+const StorekeeperDashboard = lazy(() => import("./storekeeper/StorekeeperDashboardSimple"));
+const VendorDashboard = lazy(() => import("./vendor/VendorDashboard"));
+const VendorInvoices = lazy(() => import("./vendor/VendorInvoices"));
+const VendorStock = lazy(() => import("./vendor/VendorStock"));
+const VendorPayments = lazy(() => import("./vendor/VendorPayments"));
+const VendorOrders = lazy(() => import("./vendor/VendorOrders"));
+const CalendarPage = lazy(() => import("./calendar/CalendarPage"));
+const MentorDashboard = lazy(() => import("./pages/mentor/MentorDashboard"));
+const CreateCourse = lazy(() => import("./pages/mentor/CreateCourse"));
+const AddChapter = lazy(() => import("./pages/mentor/AddChapter"));
+const AssignStudent = lazy(() => import("./pages/mentor/AssignStudents"));
+const Progress = lazy(() => import("./pages/mentor/Progress"));
+const CreateAssessment = lazy(() => import("./pages/mentor/CreateAssessment"));
+const DesignAssessment = lazy(() => import("./pages/mentor/DesignAssessment"));
+const MyClassroom = lazy(() => import("./pages/mentor/MyClassroom"));
+const MentorClassrooms = lazy(() => import("./pages/mentor/MentorClassrooms"));
+const ClassroomDetail = lazy(() => import("./pages/mentor/ClassroomDetail"));
+const CourseTeacherPortal = lazy(() => import("./pages/mentor/CourseTeacherPortal"));
+const AttendanceManagement = lazy(() => import("./pages/mentor/AttendanceManagement"));
+const ClassResults = lazy(() => import("./pages/mentor/ClassResults"));
+const AddResult = lazy(() => import("./pages/mentor/AddResult"));
+const MentorCourseDetails = lazy(() => import("./pages/mentor/MentorCourseDetails"));
+const CourseMaterialsUpload = lazy(() => import("./pages/mentor/CourseMaterialsUpload"));
+const ClassFeeStatus = lazy(() => import("./pages/mentor/ClassFeeStatus"));
+const StudentDashboard = lazy(() => import("./pages/student/Student-Dashboard"));
+const Subscription = lazy(() => import("./pages/student/Subscription"));
+const Courses = lazy(() => import("./pages/student/Courses"));
+const CourseViewer = lazy(() => import("./pages/student/CourseViewer"));
+const Certificates = lazy(() => import("./pages/student/Certificates"));
+const AttemptAssessment = lazy(() => import("./pages/student/AttemptAssessment"));
+const StudentResults = lazy(() => import("./pages/student/StudentResults"));
+const StudentAttendance = lazy(() => import("./pages/student/StudentAttendance"));
+const Timetable = lazy(() => import("./pages/student/Timetable"));
+const PayFees = lazy(() => import("./pages/student/PayFees"));
+const Requirements = lazy(() => import("./pages/mentor/Requirements"));
+const Announcements = lazy(() => import("./pages/Announcements"));
+const StudentSetupPassword = lazy(() => import("./pages/StudentSetupPassword"));
+const StudentImport = lazy(() => import("./pages/admin/StudentImport"));
+const TeacherAssessments = lazy(() => import("./pages/assessment-agent/TeacherAssessments"));
+const StudentTests = lazy(() => import("./pages/assessment-agent/StudentTests"));
+const StudentPerformanceReport = lazy(() => import("./pages/assessment-agent/StudentPerformanceReport"));
+const StudentAttempt = lazy(() => import("./pages/assessment-agent/StudentAttempt"));
+const StudentPerformance = lazy(() => import("./pages/assessment-agent/StudentPerformance"));
+const TeacherAssignments = lazy(() => import("./pages/assessment-agent/TeacherAssignments"));
+const StudentAssignments = lazy(() => import("./pages/assessment-agent/StudentAssignments"));
+const StudentAssignment = lazy(() => import("./pages/assessment-agent/StudentAssignment"));
+
 /* ================= AI MODULES ================= */
-import StudentSetupPassword from "./pages/StudentSetupPassword";
-import StudentImport from "./pages/admin/StudentImport";
-import TeacherAssessments from "./pages/assessment-agent/TeacherAssessments";
-import StudentTests from "./pages/assessment-agent/StudentTests";
-import StudentPerformanceReport from "./pages/assessment-agent/StudentPerformanceReport";
-import StudentAttempt from "./pages/assessment-agent/StudentAttempt";
-import StudentPerformance from "./pages/assessment-agent/StudentPerformance";
-import TeacherAssignments from "./pages/assessment-agent/TeacherAssignments";
-import StudentAssignments from "./pages/assessment-agent/StudentAssignments";
-import StudentAssignment from "./pages/assessment-agent/StudentAssignment";
 
 
 
@@ -351,6 +353,7 @@ function App() {
           theme="light"
         />
 
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#fffdf4]" role="status" aria-live="polite"><div className="animate-spin h-10 w-10 border-4 border-[#B99652] border-t-transparent rounded-full" aria-hidden="true"></div><span className="sr-only">Loading…</span></div>}>
         <Routes>
 
           {/* ===== PUBLIC ===== */}
@@ -379,8 +382,8 @@ function App() {
           <Route path="/student/assessment-agent/reports/:reportId" element={<ProtectedRoute requiredRole="student"><StudentPerformanceReport /></ProtectedRoute>} />
           <Route path="/student/assessment-agent/attempts/:attemptId" element={<ProtectedRoute requiredRole="student"><StudentAttempt /></ProtectedRoute>} />
 
-          {/* Test button for terms modal */}
-          <Route path="/test-terms" element={
+          {/* Test button for terms modal: development builds only (never in production) */}
+          {import.meta.env.DEV && <Route path="/test-terms" element={
             <div style={{padding: '50px', textAlign: 'center'}}>
               <h1>Terms Modal Test</h1>
               <button 
@@ -396,7 +399,7 @@ function App() {
                 Clear Terms & Show
               </button>
             </div>
-          } />
+          } />}
 
 
 
@@ -1348,12 +1351,12 @@ function App() {
 
           <Route path="/superadmin/login" element={<SuperAdminLogin />} />
 
-          <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
+          <Route path="/superadmin/dashboard" element={<ProtectedRoute requiredRole="superadmin"><SuperAdminDashboard /></ProtectedRoute>} />
 
-          <Route path="/superadmin/subscription" element={<SuperAdminSubscription />} />
+          <Route path="/superadmin/subscription" element={<ProtectedRoute requiredRole="superadmin"><SuperAdminSubscription /></ProtectedRoute>} />
 
           {/* ===== INTERNAL ADMIN PORTAL ===== */}
-          <Route path="/internal-admin-portal" element={<InternalAdminPortal />} />
+          <Route path="/internal-admin-portal" element={<ProtectedRoute requiredRole="superadmin"><InternalAdminPortal /></ProtectedRoute>} />
 
 
 
@@ -1540,6 +1543,7 @@ function App() {
           />
 
         </Routes>
+        </Suspense>
 
       </div>
 

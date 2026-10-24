@@ -69,7 +69,28 @@ export const AuthProvider = ({ children }) => {
       try {
         // Validate user data is proper JSON
         JSON.parse(storedUser);
-        console.log('Token and user validation passed');
+        // Ask the server who this session belongs to: an expired or revoked session is ended here,
+        // and role/school come from the server, never from what the browser stored.
+        fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${storedToken}` } })
+          .then(async (res) => {
+            // 401: expired/revoked/unknown session; 403: the account's role or school changed since login
+            if (res.status === 401 || res.status === 403) {
+              removeStorageItem('token');
+              removeStorageItem('user');
+              setToken(null);
+              setUser(null);
+              return;
+            }
+            if (!res.ok) return; // server unreachable or busy: keep the session, the APIs still check it
+            const me = await res.json();
+            setUser((current) => {
+              if (!current) return current;
+              const next = { ...current, id: me.id, name: me.name, email: me.email, role: me.role, university_id: me.university_id, universityId: me.university_id };
+              setStorageItem('user', JSON.stringify(next));
+              return next;
+            });
+          })
+          .catch(() => {});
       } catch {
         console.log('Invalid user data format, clearing auth');
         removeStorageItem('token');

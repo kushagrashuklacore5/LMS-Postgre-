@@ -242,6 +242,25 @@ describe('unsafe configuration stops the server (it never falls back to a built-
   it('production with a wildcard origin', () => refused({ NODE_ENV: 'production', CORS_ORIGINS: '*' }, /must not contain/));
   it('production with demo data switched on', () => refused({ ...production, SEED_DEMO_DATA: 'true' }, /SEED_DEMO_DATA/));
 
+  it('production with an account that still uses a published demo password (development only warns)', async () => {
+    const bcrypt = require(path.join(__dirname, '..', '..', 'node_modules', 'bcryptjs'));
+    const db = await newDatabase();
+    await db.query("INSERT INTO universities (id, name, area) VALUES (1, 'School', 'North')");
+    await db.query("INSERT INTO users (name, email, password, role, university_id, isApproved) VALUES ('Riya', 'riya.admin@demo.com', $1, 'admin', 1, 1)", [await bcrypt.hash('Demo@1234', 4)]);
+    const server = await startServer(db.url, production, { settleMs: 200 });
+    if (server.listening) await server.stop();
+    assert.equal(server.listening, false, 'production started with a demo-password admin');
+    assert.match(server.output, /published demo password: riya\.admin@demo\.com \(admin\)/);
+    assert.equal(server.output.includes('Demo@1234'), false, 'the password itself is never printed');
+    const dev = await startServer(db.url, {});
+    assert.equal(dev.listening, true);
+    assert.match(dev.output, /use a published demo password/);
+    await dev.stop();
+    // a changed password clears it
+    await db.query("UPDATE users SET password = $1 WHERE email = 'riya.admin@demo.com'", [await bcrypt.hash('A-new-strong-passw0rd!', 4)]);
+    await runOnce(db, production);
+  });
+
   it('the error output never prints a secret value', async () => {
     const secret = 'short-but-secret-value';
     const server = await startServer((await newDatabase()).url, { JWT_SECRET: secret }, { settleMs: 200 });

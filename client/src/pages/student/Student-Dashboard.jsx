@@ -453,7 +453,7 @@ const StudentDashboard = () => {
 
                         {classroomCourses.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-[#e6e8f1]">
-                            <p className="text-xs font-bold text-[#3a4160] mb-2">📚 {t('courses_in_classroom')}:</p>
+                            <p className="text-xs font-bold text-[#3a4160] mb-2">{t('courses_in_classroom')}:</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {classroomCourses.map((c) => (
                                 <div
