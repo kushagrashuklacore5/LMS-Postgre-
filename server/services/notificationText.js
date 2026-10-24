@@ -111,6 +111,11 @@ const TEMPLATES = {
     ai: false,
     message: (d) => `'${d.title}' is scheduled for ${d.date}. You can join from Your Lectures when it starts.`,
   },
+  LIVE_CLASS_CANCELLED: {
+    title: 'Live Class Cancelled',
+    ai: false,
+    message: (d) => `'${d.title}' scheduled for ${d.date} has been cancelled by ${d.teacherName || 'your teacher'}.`,
+  },
   MENTOR_PENDING_APPROVAL: {
     title: 'Teacher Awaiting Approval',
     ai: false,

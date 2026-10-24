@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import StudentLayout from "../../components/StudentLayout";
 import { useAuth } from "../../auth/auth";
+import { io } from "socket.io-client";
 import { useTranslation } from "../../context/TranslationContext";
 import { Calendar, TrendingUp, CheckCircle, XCircle, BookOpen } from "lucide-react";
 
@@ -52,6 +53,11 @@ const StudentAttendance = () => {
     };
 
     fetchAttendance();
+
+    // The teacher just saved attendance that includes this student: reload it (no page refresh needed)
+    const socket = io(API.replace(/\/api\/?$/, ''), { auth: { token } });
+    socket.on('attendance:updated', fetchAttendance);
+    return () => socket.disconnect();
   }, [API, token]);
 
   if (loading) {

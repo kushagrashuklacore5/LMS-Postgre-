@@ -127,8 +127,15 @@ const usersByRole = async (universityId, roles) =>
 
 const userName = async (userId) => cleanText((await get('SELECT name FROM users WHERE id = ?', [userId]))?.name, 80);
 
+/** Realtime hint to these users' open pages (their own Socket.IO rooms only). Never throws. */
+const emitToUsers = (userIds, event, payload) => {
+  if (!io) return;
+  for (const id of new Set((userIds || []).map(String))) io.to(`user:${id}`).emit(event, payload);
+};
+
 module.exports = {
   setIo,
+  emitToUsers,
   notify,
   createNotifications,
   studentsOfClassroom,

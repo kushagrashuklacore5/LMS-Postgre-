@@ -361,7 +361,10 @@ async function cancelLecture(req, lectureId) {
   if (!(isOwner || user.kind === 'admin')) throw new HttpError(403, 'Only the lecture\'s teacher or an admin cancels it');
   if (lecture.status === 'cancelled') return getLecture(req, lecture.id);
   if (lecture.status !== 'scheduled') throw new HttpError(409, lecture.status === 'live' ? 'The class is live: end it instead' : `This lecture is ${lecture.status}`);
-  await run("UPDATE live_classes SET status = 'cancelled', cancelledAt = ?, cancelledBy = ?, updatedAt = ? WHERE id = ? AND status = 'scheduled'", [nowIso(), user.id, nowIso(), lecture.id]);
+  const cancelled = await run("UPDATE live_classes SET status = 'cancelled', cancelledAt = ?, cancelledBy = ?, updatedAt = ? WHERE id = ? AND status = 'scheduled'", [nowIso(), user.id, nowIso(), lecture.id]);
+  // Only the request that actually cancelled it notifies (a retry finds it cancelled above); the
+  // notification service also stores one per student per lecture.
+  if (cancelled.changes > 0) await notifyStudents(lecture.id, 'LIVE_CLASS_CANCELLED');
   return getLecture(req, lecture.id);
 }
 

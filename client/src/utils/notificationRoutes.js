@@ -32,6 +32,7 @@ export const notificationTarget = (notification, role) => {
     case "LIVE_CLASS_STARTED":
       return id ? `/live/${id}` : "/student/lectures";
     case "LIVE_CLASS_SCHEDULED":
+    case "LIVE_CLASS_CANCELLED":
       return "/student/lectures";
     case "MENTOR_PENDING_APPROVAL":
       return "/admin/mentors";

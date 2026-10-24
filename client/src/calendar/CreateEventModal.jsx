@@ -17,7 +17,8 @@ const CreateEventModal = ({ role, onClose, onSuccess }) => {
   const allMyClasses = isTeacher && !forCourse;
   const showPicker = forClass && !allMyClasses;
   const [loading, setLoading] = useState(false);
-  const [notify, setNotify] = useState(false);
+  // On by default so a new event reaches the participants' notification bell; untick to create it silently
+  const [notify, setNotify] = useState(true);
   const [notifyMessage, setNotifyMessage] = useState("");
   const [suggesting, setSuggesting] = useState(false);
 

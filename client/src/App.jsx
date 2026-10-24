@@ -886,6 +886,17 @@ function App() {
 
           {/* ✅ COURSE MATERIALS UPLOAD */}
 
+          {/* "Manage Course" (My Classrooms → Courses) opens the course management page; this path had
+              no route, so the page rendered blank. */}
+          <Route
+            path="/mentor/course/:courseId/manage"
+            element={
+              <ProtectedRoute requiredRole="mentor">
+                <CourseTeacherPortal />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
 
             path="/mentor/course/:courseId/materials"

@@ -677,6 +677,51 @@ const CourseTeacherPortal = () => {
         {/* Content */}
         {expandedTab === 'materials' && (
           <div className="space-y-3">
+            {/* Materials added without a week (the Add Material form allows it) are listed here; before,
+                they were filtered out by week and never shown to the mentor. */}
+            {(() => {
+              const general = materials.filter((m) => !weeks.some((w) => String(w._id) === String(m.weekId)));
+              if (general.length === 0) return null;
+              return (
+                <div className="bg-white border border-[#ebdcaa] rounded-none p-4 shadow-xs" data-testid="general-materials">
+                  <h3 className="font-bold text-base text-[#1e1b4b] font-['DM_Serif_Display',serif] mb-3">General materials ({general.length})</h3>
+                  <div className="space-y-2">
+                    {general.map((material) => (
+                                <div
+                                  key={material._id}
+                                  className="bg-white p-3.5 rounded-none border border-[#ebdcaa]/80 flex justify-between items-start"
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-semibold text-slate-800 text-sm">{material.title}</p>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                      Type: {material.type.replace('_', ' ')} •{' '}
+                                      {new Date(material.createdAt).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                  {material.linkUrl && (
+                                    <a
+                                      href={material.linkUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[#9a7837] hover:text-[#7c5f24] font-semibold text-xs ml-2 underline"
+                                    >
+                                      Open
+                                    </a>
+                                  )}
+                                  {material.fileUrl && (
+                                    <a
+                                      href={fileLink(material.fileUrl)}
+                                      className="text-[#9a7837] hover:text-[#7c5f24] font-semibold text-xs ml-2 flex items-center gap-1"
+                                    >
+                                      <Download className="w-3.5 h-3.5" /> Download
+                                    </a>
+                                  )}
+                                </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
             {weeks.length === 0 ? (
               <p className="text-slate-500 text-center py-8">No weeks added yet</p>
             ) : (
@@ -700,11 +745,11 @@ const CourseTeacherPortal = () => {
                       <div className="mb-4">
                         <h4 className="font-semibold mb-3">Materials</h4>
                         <div className="space-y-2">
-                          {materials.filter(m => m.weekId === week._id).length === 0 ? (
+                          {materials.filter(m => String(m.weekId) === String(week._id)).length === 0 ? (
                             <p className="text-gray-500 text-sm">No materials added for this week</p>
                           ) : (
                             materials
-                              .filter(m => m.weekId === week._id)
+                              .filter(m => String(m.weekId) === String(week._id))
                               .map(material => (
                                 <div
                                   key={material._id}

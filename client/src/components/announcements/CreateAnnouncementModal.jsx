@@ -52,52 +52,10 @@ const CreateAnnouncementModal = ({
     try {
       setLoading(true);
 
-      // 🔒 FOR MENTORS: CHECK ANNOUNCEMENT LIMIT ON FREE PLAN
-      if (user.role === "mentor") {
-        try {
-          const featureRes = await fetch(`${API}/subscriptions/check-feature-access`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-
-          if (featureRes.ok) {
-            const featureData = await featureRes.json();
-            const maxAnnouncements = featureData?.features?.announcements?.max || 0;
-
-            // If on free plan, check announcement count
-            if (featureData.currentPlan === 'free' && maxAnnouncements > 0) {
-              const announcementRes = await fetch(`${API}/announcements`, {
-                headers: { Authorization: `Bearer ${token}` }
-              });
-
-              if (announcementRes.ok) {
-                const allAnnouncements = await announcementRes.json();
-
-                // Count only announcements created by this mentor
-                const mentorAnnouncements = allAnnouncements.filter(
-                  ann => ann.createdByRole === 'mentor'
-                );
-
-                const currentCount = mentorAnnouncements.length;
-
-                // Check if limit is reached
-                if (currentCount >= maxAnnouncements) {
-                  onQuotaExceeded?.({
-                    type: 'quota',
-                    resourceType: 'announcements',
-                    currentUsage: currentCount,
-                    limit: maxAnnouncements,
-                    message: `Your account is on the Free plan — upgrade to post more than ${maxAnnouncements} announcement(s).`
-                  });
-                  return;
-                }
-              }
-            }
-          }
-        } catch (err) {
-          console.error('Feature check error:', err);
-        }
-      }
-
+      // No announcement limit is checked here: the server decides (quotaMiddleware: announcements are
+      // unlimited on every plan) and answers 402 with the details if a limit ever applies. The old
+      // browser-only check counted every mentor's announcements, not this mentor's, and blocked
+      // teachers at "2/2" although the server allows them.
       const payload = {
         title: form.title.trim(),
         message: form.message.trim(),
@@ -129,6 +87,16 @@ const CreateAnnouncementModal = ({
 
       if (!res.ok) {
         const failure = await res.json().catch(() => ({}));
+        if (res.status === 402 && onQuotaExceeded) {
+          onQuotaExceeded({
+            type: failure.featureRestricted ? 'feature' : 'quota',
+            resourceType: 'announcements',
+            currentUsage: failure.current ?? failure.currentUsage,
+            limit: failure.limit,
+            message: failure.message,
+          });
+          return;
+        }
         throw new Error(failure.message || "Failed to publish announcement");
       }
 

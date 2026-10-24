@@ -314,6 +314,20 @@ describe('live lectures', () => {
       assert.ok(!JSON.stringify(other.body).includes('Notify me'), 'a class member who is not enrolled does not');
       await ctx.api('POST', `/api/live-classes/${s.body.data.id}/end`, { as: 'mentorA' });
     });
+
+    it('cancelling notifies exactly the enrolled students of the class, once each, even when retried', async () => {
+      const s = await create({ as: 'mentorA' }, { classroomId: ids.classroomA, courseId: ids.courseA, title: 'Cancel me', mode: 'schedule', scheduledStartTime: later(30) });
+      const expected = [U.studentA, x.second].sort((a, b) => a - b);
+      const cancels = await Promise.all([1, 2, 3].map(() => ctx.api('POST', `/api/live-classes/${s.body.data.id}/cancel`, { as: 'mentorA' })));
+      assert.ok(cancels.every((r) => r.status === 200 && r.body.data.status === 'cancelled'), cancels.map((r) => r.status).join(','));
+      assert.deepEqual((await notes('LIVE_CLASS_CANCELLED', s.body.data.id)).map((r) => Number(r.recipientUserId)), expected);
+      const bell = await ctx.api('GET', '/api/announcements', { as: 'studentA' });
+      const note = bell.body.find((a) => a.type === 'LIVE_CLASS_CANCELLED' && Number(a.entityId) === s.body.data.id);
+      assert.ok(note && /Cancel me/.test(note.content) && /cancelled/i.test(note.title), 'the student sees which class was cancelled');
+      assert.ok(!JSON.parse(note.readBy || '[]').includes(String(U.studentA)), 'it counts as unread');
+      const other = await ctx.api('GET', '/api/announcements', as(x.memberOnly, 'student'));
+      assert.ok(!JSON.stringify(other.body).includes('Cancel me'), 'a class member who is not enrolled is not told');
+    });
   });
 
   describe('cancelling and history', () => {

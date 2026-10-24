@@ -55,6 +55,9 @@ const markAttendance = async (req, res) => {
       }
     });
 
+    // Students whose attendance changed refresh their open attendance page (the data is already saved)
+    require('../services/notificationService').emitToUsers([...register.keys()], 'attendance:updated', { classroomId: Number(classroomId), date: attendanceDate });
+
     res.json({ message: "Attendance marked successfully", count: register.size });
   } catch (error) {
     if (error.status) return res.status(error.status).json({ message: error.message });

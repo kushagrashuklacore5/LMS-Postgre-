@@ -17,7 +17,8 @@ const AttendanceManagement = () => {
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [students, setStudents] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  // Today in the teacher's own time zone (toISOString gives the UTC date: yesterday before 05:30 IST)
+  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('en-CA'));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
