@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/auth";
 import MentorLayout from "../../components/MentorLayout";
 import { useTranslation } from "../../context/TranslationContext";
+import { getCourseThumbnail } from "../../utils/courseBannerHelper";
 import mentorHeroImg from "../../assets/mentor_reading_hero_perfect.png";
 import { toast } from "react-toastify";
 import {
@@ -253,16 +254,7 @@ const MentorDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courseList.map((course, courseIndex) => {
-                const isMath = course.title && (course.title.toLowerCase().includes('math') || course.title.toLowerCase().includes('algebra') || course.title.toLowerCase().includes('geometry') || course.title.toLowerCase().includes('stat') || course.title.toLowerCase().includes('calc'));
-                const isScience = course.title && (course.title.toLowerCase().includes('scienc') || course.title.toLowerCase().includes('physic') || course.title.toLowerCase().includes('chemist') || course.title.toLowerCase().includes('biolog') || course.title.toLowerCase().includes('experiment') || course.title.toLowerCase().includes('lab'));
-                
-                const bannerImg = course.photo 
-                  ? `${API}${course.photo}` 
-                  : isMath 
-                    ? ['/banners/math_blueprint.png', '/banners/math_geometry.png', '/banners/math_stats.png'][courseIndex % 3]
-                    : isScience 
-                      ? ['/banners/science_general.png', '/banners/science_physics.png', '/banners/science_chemistry.png'][courseIndex % 3]
-                      : null;
+                const bannerImg = getCourseThumbnail(course, courseIndex, API);
 
                 return (
                   <div
@@ -274,9 +266,7 @@ const MentorDashboard = () => {
                     <div
                       className="h-36 relative bg-cover bg-center p-4 flex flex-col justify-between"
                       style={{
-                        backgroundImage: bannerImg 
-                          ? `url(${bannerImg})` 
-                          : 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #B99652 100%)'
+                        backgroundImage: `url(${bannerImg})`
                       }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent"></div>

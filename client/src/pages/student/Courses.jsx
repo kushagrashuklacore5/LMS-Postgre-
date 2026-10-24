@@ -5,6 +5,7 @@ import StudentLayout from '../../components/StudentLayout';
 import ProgressBar from '../../components/ProgressBar';
 import { useAuth } from '../../auth/auth';
 import { useTranslation } from '../../context/TranslationContext';
+import { getCourseThumbnail } from '../../utils/courseBannerHelper';
 import {
   BookOpen,
   Users,
@@ -265,13 +266,7 @@ const Courses = () => {
                   <div 
                     className="h-28 w-full relative bg-cover bg-center p-4 flex flex-col justify-between rounded-none"
                     style={{
-                      backgroundImage: course.photo 
-                        ? `url(${API}${course.photo})` 
-                        : (course.title && (course.title.toLowerCase().includes('math') || course.title.toLowerCase().includes('algebra') || course.title.toLowerCase().includes('geometry') || course.title.toLowerCase().includes('stat') || course.title.toLowerCase().includes('calc')))
-                          ? `url(${['/banners/math_blueprint.png', '/banners/math_geometry.png', '/banners/math_stats.png'][index % 3]})`
-                          : (course.title && (course.title.toLowerCase().includes('scienc') || course.title.toLowerCase().includes('physic') || course.title.toLowerCase().includes('chemist') || course.title.toLowerCase().includes('biolog') || course.title.toLowerCase().includes('experiment') || course.title.toLowerCase().includes('lab')))
-                            ? `url(${['/banners/science_general.png', '/banners/science_physics.png', '/banners/science_chemistry.png'][index % 3]})`
-                            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      backgroundImage: `url(${getCourseThumbnail(course, index, API)})`
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/20 to-transparent"></div>

@@ -5,6 +5,7 @@ import LecturesTable from "../../components/lectures/LecturesTable";
 import StartClassModal from "../../components/lectures/StartClassModal";
 import { useAuth } from "../../auth/auth";
 import { useTranslation } from "../../context/TranslationContext";
+import { getCourseThumbnail } from "../../utils/courseBannerHelper";
 import { toast } from "react-toastify";
 import {
   Plus,
@@ -460,13 +461,7 @@ const ClassroomDetail = () => {
                   <div 
                     className="relative px-5 py-5 text-white bg-cover bg-center"
                     style={{
-                      backgroundImage: course.photo 
-                        ? `url(${API}${course.photo})`
-                        : (course.title && (course.title.toLowerCase().includes('math') || course.title.toLowerCase().includes('algebra') || course.title.toLowerCase().includes('geometry') || course.title.toLowerCase().includes('stat') || course.title.toLowerCase().includes('calc')))
-                          ? `url(${['/banners/math_blueprint.png', '/banners/math_geometry.png', '/banners/math_stats.png'][index % 3]})`
-                          : (course.title && (course.title.toLowerCase().includes('scienc') || course.title.toLowerCase().includes('physic') || course.title.toLowerCase().includes('chemist') || course.title.toLowerCase().includes('biolog') || course.title.toLowerCase().includes('experiment') || course.title.toLowerCase().includes('lab')))
-                            ? `url(${['/banners/science_general.png', '/banners/science_physics.png', '/banners/science_chemistry.png'][index % 3]})`
-                            : 'linear-gradient(to right, #B99652, #8c6d32)'
+                      backgroundImage: `url(${getCourseThumbnail(course, index, API)})`
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-900/35 to-transparent"></div>
